@@ -1,0 +1,126 @@
+package ${packageName}.controller;
+
+#foreach ($column in $columns)
+#if($column.required && !$column.isSuperColumn())
+#set($needValidate=true)
+#end
+#end
+import com.airboot.project.monitor.model.enums.OperationTypeEnum;
+import lombok.extern.slf4j.Slf4j;
+import com.airboot.common.security.annotation.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+import com.airboot.common.core.aspectj.lang.annotation.Log;
+import ${packageName}.model.entity.${ClassName};
+import ${packageName}.model.vo.Search${ClassName}VO;
+#if($table.tplCategory.getCode() == "crud")
+import com.baomidou.mybatisplus.core.metadata.IPage;
+#end
+import ${packageName}.service.I${ClassName}Service;
+import com.airboot.common.component.BaseController;
+import com.airboot.common.model.vo.AjaxResult;
+import com.airboot.common.core.utils.poi.ExcelUtil;
+#if($needValidate)
+import org.springframework.validation.annotation.Validated;
+#end
+
+import javax.annotation.Resource;
+import java.util.Arrays;
+import java.util.List;
+
+/**
+ * ${functionName}Controller
+ * 
+ * @author ${author}
+ * @date ${datetime}
+ */
+@Slf4j
+@RestController
+@RequestMapping("/${moduleName}/${businessName}")
+public class ${ClassName}Controller extends BaseController {
+
+    @Resource
+    private I${ClassName}Service ${className}Service;
+
+#if($table.tplCategory.getCode() == "crud")
+    /**
+     * 查询${functionName}分页
+     */
+    @PreAuthorize("${permissionPrefix}:page")
+    @GetMapping("/page")
+    public AjaxResult page(Search${ClassName}VO search) {
+        IPage<${ClassName}> page = ${className}Service.getPage(search);
+        return success(page);
+    }
+
+#end
+    /**
+     * 查询${functionName}列表，入参为空时可查询全部
+     */
+    @PreAuthorize("${permissionPrefix}:page")
+    @GetMapping("/list")
+    public AjaxResult list(Search${ClassName}VO search) {
+        List<${ClassName}> list = ${className}Service.getList(search);
+        return success(list);
+    }
+
+    /**
+     * 导出${functionName}列表
+     */
+    @PreAuthorize("${permissionPrefix}:export")
+    @Log(title = "${functionName}", operationType = OperationTypeEnum.导出)
+    @GetMapping("/export")
+    public AjaxResult export(Search${ClassName}VO search) {
+        List<${ClassName}> list = ${className}Service.getList(search);
+        ExcelUtil<${ClassName}> util = new ExcelUtil<>(${ClassName}.class);
+        return util.exportExcel(list, "${businessName}");
+    }
+
+    /**
+     * 获取${functionName}详细信息
+     */
+    @PreAuthorize("${permissionPrefix}:query")
+    @GetMapping(value = "/{${pkColumn.javaField}}")
+    public AjaxResult getInfo(@PathVariable("${pkColumn.javaField}") ${pkColumn.javaType} ${pkColumn.javaField}) {
+        return success(${className}Service.getById(${pkColumn.javaField}));
+    }
+
+    /**
+     * 新增${functionName}
+     */
+    @PreAuthorize("${permissionPrefix}:add")
+    @Log(title = "${functionName}", operationType = OperationTypeEnum.新增)
+    @PostMapping
+#if($needValidate)
+    public AjaxResult add(@Validated @RequestBody ${ClassName} ${className}) {
+#else
+    public AjaxResult add(@RequestBody ${ClassName} ${className}) {
+#end
+        ${className}Service.saveOrUpdate(${className});
+        return success();
+    }
+
+    /**
+     * 修改${functionName}
+     */
+    @PreAuthorize("${permissionPrefix}:edit")
+    @Log(title = "${functionName}", operationType = OperationTypeEnum.修改)
+    @PutMapping
+#if($needValidate)
+    public AjaxResult edit(@Validated @RequestBody ${ClassName} ${className}) {
+#else
+    public AjaxResult edit(@RequestBody ${ClassName} ${className}) {
+#end
+        ${className}Service.saveOrUpdate(${className});
+        return success();
+    }
+
+    /**
+     * 删除${functionName}
+     */
+    @PreAuthorize("${permissionPrefix}:remove")
+    @Log(title = "${functionName}", operationType = OperationTypeEnum.删除)
+    @DeleteMapping("/{${pkColumn.javaField}s}")
+    public AjaxResult remove(@PathVariable ${pkColumn.javaType}[] ${pkColumn.javaField}s) {
+        return toAjax(${className}Service.deleteByIds(Arrays.asList(${pkColumn.javaField}s)));
+    }
+}

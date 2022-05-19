@@ -1,0 +1,86 @@
+package ${packageName}.model.entity;
+
+#foreach ($import in $importList)
+import ${import};
+#end
+#if($table.tplCategory.getCode() == "crud")
+import com.airboot.common.model.entity.BaseEntity;
+#set($Entity="BaseEntity")
+#elseif($table.tplCategory.getCode() == "tree")
+import com.airboot.common.model.entity.TreeEntity;
+#set($Entity="TreeEntity")
+#end
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+
+/**
+ * ${functionName}对象 ${tableName}
+ * 
+ * @author ${author}
+ * @date ${datetime}
+ */
+@Data
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
+@TableName("${tableName}")
+public class ${ClassName} extends ${Entity} {
+
+    private static final long serialVersionUID = 1L;
+
+#foreach ($column in $columns)
+#if(!$column.isSuperColumn())
+    /**
+     * $column.columnComment
+     */
+#set($parentheseIndex=$column.columnComment.indexOf("（"))
+#if($parentheseIndex != -1)
+#set($comment=$column.columnComment.substring(0, $parentheseIndex))
+#else
+#set($comment=$column.columnComment)
+#end
+#if($column.excelExport || $column.excelImport)
+#if($parentheseIndex != -1 && $column.javaType != 'Enum')
+#if($column.excelExport && $column.excelImport)
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+#elseif($column.excelExport)
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()", type = Type.EXPORT)
+#else
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()", type = Type.IMPORT)
+#end
+#elseif($column.javaType == 'Date')
+    @JsonFormat(pattern = DateUtils.DATETIME_FORMAT, locale = "zh", timezone = "GMT+8")
+#if($column.excelExport && $column.excelImport)
+    @Excel(name = "${comment}", width = 30, dateFormat = DateUtils.DATETIME_FORMAT)
+#elseif($column.excelExport)
+    @Excel(name = "${comment}", width = 30, dateFormat = DateUtils.DATETIME_FORMAT, type = Type.EXPORT)
+#else
+    @Excel(name = "${comment}", width = 30, dateFormat = DateUtils.DATETIME_FORMAT, type = Type.IMPORT)
+#end
+#else
+#if($column.excelExport && $column.excelImport)
+    @Excel(name = "${comment}")
+#elseif($column.excelExport)
+    @Excel(name = "${comment}", type = Type.EXPORT)
+#else
+    @Excel(name = "${comment}", type = Type.IMPORT)
+#end
+#end
+#end
+#if($column.required && $column.javaType == 'String')
+    @NotBlank(message = "${comment}不能为空")
+#elseif($column.required)
+    @NotNull(message = "${comment}不能为空")
+#end
+#if($column.javaType == "Enum")
+    private $column.enumSimpleName $column.javaField;
+    #else
+    private $column.javaType $column.javaField;
+#end
+
+#end
+#end
+}

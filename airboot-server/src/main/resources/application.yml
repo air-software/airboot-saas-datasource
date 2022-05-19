@@ -1,0 +1,69 @@
+# 项目相关配置
+airboot:
+  # 名称
+  name: Airboot-SaaS-DataSource
+  # 版本
+  version: 1.1.0
+
+# Spring配置
+spring:
+  application:
+    name: airboot-server
+  # 激活哪个环境的配置：dev-开发环境，test-测试环境，prod-生产环境
+  profiles:
+    active: dev
+  # 资源信息
+  messages:
+    # 国际化资源文件路径
+    basename: i18n/messages
+  # 文件上传
+  servlet:
+     multipart:
+       # 单个文件大小
+       max-file-size:  10MB
+       # 设置总上传的文件大小
+       max-request-size:  20MB
+
+# token配置
+token:
+    # 令牌自定义标识
+    header: Authorization
+    # 令牌秘钥
+    secret: aIrboOT
+    # 令牌有效期（单位-分钟）
+    expireTime: 1440
+
+# 防止XSS攻击
+xss: 
+  # 过滤开关
+  enabled: true
+  # 排除链接（多个用逗号分隔）
+  excludes: /system/notice/*
+  # 匹配链接
+  urlPatterns: /system/*,/monitor/*,/tool/*
+  
+# 代码生成
+gen: 
+  # 作者
+  author: airboot
+  # 默认生成包路径 system 需改成自己的模块名称 如 system monitor tool
+  packageName: com.airboot.project.system
+  # 自动去除表前缀，默认是true
+  autoRemovePre: false
+  # 表前缀（生成类名不会包含表前缀，多个用逗号分隔）
+  tablePrefix: sys_
+
+# MyBatis-Plus配置
+mybatis-plus:
+  # 配置mapper的扫描，找到所有的mapper.xml映射文件
+  mapper-locations: classpath*:mybatis/**/*Mapper.xml
+  # 枚举扫描位置
+  type-enums-package: com.airboot.**.model.enums
+  # 加载全局的配置文件
+  config-location: classpath:mybatis/mybatis-config.xml
+  # 搜索指定包别名
+  type-aliases-package: com.airboot.**.model.entity
+  global-config:
+    db-config:
+      # 主键策略，auto表示自增，assign_id表示使用分布式全局唯一ID（默认雪花算法）
+      id-type: assign_id

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.airboot.project.system.mapper.SysNoticeMapper">
+
+    <select id="findPage" resultType="com.airboot.project.system.model.entity.SysNotice">
+        SELECT *
+        FROM sys_notice
+        <where>
+            <if test="noticeTitle != null and noticeTitle != ''">
+                AND notice_title like concat('%', #{noticeTitle}, '%')
+            </if>
+            <if test="noticeType != null">
+                AND notice_type = #{noticeType}
+            </if>
+            <if test="creatorInfo != null and creatorInfo != ''">
+                AND creator_info like concat('%', #{creatorInfo}, '%')
+            </if>
+        </where>
+    </select>
+
+</mapper>

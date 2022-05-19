@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.airboot.project.system.mapper.SysTenantMapper">
+
+    <sql id="selectListSql">
+        select *
+        from sys_tenant
+        <where>
+            !deleted
+            <if test="dataSourceId != null">
+                and data_source_id = #{dataSourceId}
+            </if>
+            <if test="schemaName != null  and schemaName != ''">
+                and schema_name like concat('%', #{schemaName}, '%')
+            </if>
+            <if test="tenantName != null  and tenantName != ''">
+                and tenant_name like concat('%', #{tenantName}, '%')
+            </if>
+            <if test="personName != null  and personName != ''">
+                and person_name like concat('%', #{personName}, '%')
+            </if>
+            <if test="mobile != null  and mobile != ''">
+                and mobile = #{mobile}
+            </if>
+            <if test="status != null ">
+                and status = #{status}
+            </if>
+            <if test="tenantType != null ">
+                and tenant_type = #{tenantType}
+            </if>
+        </where>
+    </sql>
+
+    <select id="findPage" resultType="com.airboot.project.system.model.entity.SysTenant">
+        <include refid="selectListSql"/>
+    </select>
+
+    <select id="findList" resultType="com.airboot.project.system.model.entity.SysTenant">
+        <include refid="selectListSql"/>
+    </select>
+    
+</mapper>

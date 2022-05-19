@@ -1,0 +1,36 @@
+package ${packageName}.model.vo;
+
+#foreach ($import in $voImportList)
+import ${import};
+#end
+import com.airboot.common.model.vo.BaseSearchVO;
+import lombok.Data;
+
+/**
+ * 查询${functionName}分页条件
+ * 
+ * @author ${author}
+ * @date ${datetime}
+ */
+@Data
+public class Search${ClassName}VO extends BaseSearchVO {
+
+#foreach ($column in $columns)
+#if($column.query && !$column.isSearchSuperColumn())
+    /**
+     * $column.columnComment
+     */
+#if($column.javaType == 'Date')
+    @JsonFormat(pattern = DateUtils.DATETIME_FORMAT, locale = "zh", timezone = "GMT+8")
+#end
+#if($column.javaType == "Enum")
+    private $column.enumSimpleName $column.javaField;
+#elseif($column.javaType == "boolean")
+    private Boolean $column.javaField;
+#else
+    private $column.javaType $column.javaField;
+#end
+
+#end
+#end
+}

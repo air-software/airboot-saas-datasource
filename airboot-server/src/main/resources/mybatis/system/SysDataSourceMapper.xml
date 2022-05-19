@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.airboot.project.system.mapper.SysDataSourceMapper">
+
+    <sql id="selectListSql">
+        select *
+        from sys_data_source
+        <where>
+            !deleted
+            <if test="name != null  and name != ''">
+                and name like concat('%', #{name}, '%')
+            </if>
+            <if test="host != null  and host != ''">
+                and host like concat('%', #{host}, '%')
+            </if>
+        </where>
+    </sql>
+
+    <select id="findPage" resultType="com.airboot.project.system.model.entity.SysDataSource">
+        <include refid="selectListSql"/>
+    </select>
+
+    <select id="findList" resultType="com.airboot.project.system.model.entity.SysDataSource">
+        <include refid="selectListSql"/>
+    </select>
+    
+</mapper>

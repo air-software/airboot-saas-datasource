@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.airboot.project.system.mapper.SysPostMapper">
+    
+    <sql id="selectList">
+        SELECT *
+        FROM sys_post
+        <where>
+            <if test="postCode != null and postCode != ''">
+                AND post_code like concat('%', #{postCode}, '%')
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+            <if test="postName != null and postName != ''">
+                AND post_name like concat('%', #{postName}, '%')
+            </if>
+        </where>
+    </sql>
+
+    <select id="findPage" resultType="com.airboot.project.system.model.entity.SysPost">
+        <include refid="selectList"></include>
+    </select>
+    
+    <select id="findList" resultType="com.airboot.project.system.model.entity.SysPost">
+        <include refid="selectList"></include>
+    </select>
+
+    <select id="findIdListByUserId" parameterType="Long" resultType="Long">
+		select p.id
+        from sys_post p
+	        left join sys_user_post up on up.post_id = p.id
+	        left join sys_user u on u.id = up.user_id
+	    where u.id = #{userId}
+	</select>
+
+    <select id="findListByUserId" parameterType="Long" resultType="com.airboot.project.system.model.entity.SysPost">
+		select p.id, p.post_name, p.post_code
+		from sys_post p
+			 left join sys_user_post up on up.post_id = p.id
+			 left join sys_user u on u.id = up.user_id
+		where u.id = #{userId}
+	</select>
+
+</mapper> 

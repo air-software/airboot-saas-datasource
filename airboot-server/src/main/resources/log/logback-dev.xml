@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 开发环境日志配置  -->
+<configuration>
+    <property name="contextName" value="airboot" />
+    <!-- 下面这两个属性主要用于日志过滤，如ELK，可在logstash处理时进行分类 -->
+    <property name="appName" value="AIRBOOT" />
+    <property name="profile" value="DEV" />
+    <contextName>${contextName}</contextName>
+    <!-- 日志存放路径 -->
+	<property name="log.path" value="D:/airboot/log" />
+    <!-- 日志单个文件大小限制 -->
+    <property name="log.maxFileSize" value="10MB" />
+    <!-- 日志输出格式 -->
+    <!-- 打印一级caller，包含包名、类名、方法及行号 （对性能有影响，生产时尽量不要使用）-->
+    <property name="log.pattern" value="%d{yyyy-MM-dd;HH:mm:ss.SSS} ${appName} ${profile} [%thread] %-5level %caller{1} - %msg%n%n" />
+
+	<!-- 控制台输出 -->
+	<appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>${log.pattern}</pattern>
+		</encoder>
+	</appender>
+    
+    <!-- 全部输出 -->
+    <appender name="file_all" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/${contextName}-all.log</file>
+        <!-- 循环政策：基于时间创建日志文件 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 日志文件名格式 -->
+            <fileNamePattern>${log.path}/${contextName}-all.%d{yyyy-MM-dd}-%i.log.zip</fileNamePattern>
+            <!-- 日志最大的历史 60天 -->
+            <maxHistory>60</maxHistory>
+            <timeBasedFileNamingAndTriggeringPolicy
+                class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <!--文件达到设定的最大值时会被压缩和切割 -->
+                <maxFileSize>${log.maxFileSize}</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${log.pattern}</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <!-- 过滤的级别 -->
+            <level>INFO</level>
+        </filter>
+    </appender>
+	
+	<!-- 只输出INFO -->
+	<appender name="file_info" class="ch.qos.logback.core.rolling.RollingFileAppender">
+	    <file>${log.path}/${contextName}-info.log</file>
+        <!-- 循环政策：基于时间创建日志文件 -->
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 日志文件名格式 -->
+			<fileNamePattern>${log.path}/${contextName}-info.%d{yyyy-MM-dd}-%i.log.zip</fileNamePattern>
+			<!-- 日志最大的历史 60天 -->
+			<maxHistory>60</maxHistory>
+            <timeBasedFileNamingAndTriggeringPolicy
+                class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <!--文件达到设定的最大值时会被压缩和切割 -->
+                <maxFileSize>${log.maxFileSize}</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+		</rollingPolicy>
+		<encoder>
+			<pattern>${log.pattern}</pattern>
+		</encoder>
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <!-- 过滤的级别 -->
+            <level>INFO</level>
+            <!-- 匹配时的操作：接收（记录） -->
+            <onMatch>ACCEPT</onMatch>
+            <!-- 不匹配时的操作：拒绝（不记录） -->
+            <onMismatch>DENY</onMismatch>
+        </filter>
+	</appender>
+    
+    <!-- 只输出ERROR -->
+	<appender name="file_error" class="ch.qos.logback.core.rolling.RollingFileAppender">
+	    <file>${log.path}/${contextName}-error.log</file>
+        <!-- 循环政策：基于时间创建日志文件 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 日志文件名格式 -->
+            <fileNamePattern>${log.path}/${contextName}-error.%d{yyyy-MM-dd}-%i.log.zip</fileNamePattern>
+			<!-- 日志最大的历史 60天 -->
+			<maxHistory>60</maxHistory>
+            <timeBasedFileNamingAndTriggeringPolicy
+                class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <!--文件达到设定的最大值时会被压缩和切割 -->
+                <maxFileSize>${log.maxFileSize}</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${log.pattern}</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <!-- 过滤的级别 -->
+            <level>ERROR</level>
+			<!-- 匹配时的操作：接收（记录） -->
+            <onMatch>ACCEPT</onMatch>
+			<!-- 不匹配时的操作：拒绝（不记录） -->
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+	
+	<!-- 用户操作日志输出  -->
+    <appender name="file_user" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${log.path}/${contextName}-user.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 按天回滚 daily -->
+            <fileNamePattern>${log.path}/${contextName}-user.%d{yyyy-MM-dd}-%i.log.zip</fileNamePattern>
+            <!-- 日志最大的历史 60天 -->
+            <maxHistory>60</maxHistory>
+            <timeBasedFileNamingAndTriggeringPolicy
+                class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <!--文件达到设定的最大值时会被压缩和切割 -->
+                <maxFileSize>${log.maxFileSize}</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${log.pattern}</pattern>
+        </encoder>
+    </appender>
+	
+	<!-- 系统模块日志级别控制  -->
+	<logger name="com.airboot" level="debug" />
+	<!-- Spring日志级别控制  -->
+	<logger name="org.springframework" level="warn" />
+
+	<root level="info">
+		<appender-ref ref="console" />
+	</root>
+	
+	<!--系统运行日志-->
+    <root level="info">
+        <appender-ref ref="file_all" />
+        <appender-ref ref="file_info" />
+        <appender-ref ref="file_error" />
+    </root>
+	
+	<!--用户操作日志-->
+    <logger name="sys-user" level="info">
+        <appender-ref ref="file_user"/>
+    </logger>
+</configuration> 

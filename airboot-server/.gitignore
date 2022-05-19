@@ -1,0 +1,48 @@
+######################################################################
+# Profile Local由开发人员在有本地开发需求时自行配置本地环境参数，不上传到git
+**/src/main/resources/application-local.yml
+**/src/main/resources/log/logback-local.xml
+
+######################################################################
+# Build Tools
+
+.gradle
+/build/
+!gradle/wrapper/gradle-wrapper.jar
+
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+######################################################################
+# IDE
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+nbproject/private/
+build/*
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+######################################################################
+# Others
+*.log
+*.xml.versionsBackup
+
+!*/build/*.java
+!*/build/*.html
+!*/build/*.xml

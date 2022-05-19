@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.airboot.project.system.mapper.SysUserMapper">
+
+    <resultMap id="SysUserResult" type="com.airboot.project.system.model.entity.SysUser">
+        <id property="id" column="id"/>
+        <result property="deptId" column="dept_id"/>
+        <result property="username" column="username"/>
+        <result property="personName" column="person_name"/>
+        <result property="email" column="email"/>
+        <result property="mobile" column="mobile"/>
+        <result property="gender" column="gender"/>
+        <result property="avatar" column="avatar"/>
+        <result property="password" column="password"/>
+        <result property="nickname" column="nickname"/>
+        <result property="idCard" column="id_card"/>
+        <result property="cardType" column="card_type"/>
+        <result property="status" column="status"/>
+        <result property="loginIp" column="login_ip"/>
+        <result property="loginLocation" column="login_location"/>
+        <result property="loginDate" column="login_date"/>
+        <result property="creatorId" column="creator_id"/>
+        <result property="creatorInfo" column="creator_info"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updaterId" column="updater_id"/>
+        <result property="updaterInfo" column="updater_info"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="extJson" column="ext_json"/>
+        <result property="deleted" column="deleted"/>
+        <result property="version" column="version"/>
+        <association property="dept" javaType="com.airboot.project.system.model.entity.SysDept" resultMap="deptResult"/>
+        <collection property="roles" javaType="java.util.List" resultMap="RoleResult"/>
+    </resultMap>
+
+    <resultMap id="deptResult" type="com.airboot.project.system.model.entity.SysDept">
+        <id property="id" column="deptId"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="ancestors" column="ancestors"/>
+        <result property="deptName" column="dept_name"/>
+        <result property="orderNum" column="order_num"/>
+        <result property="leader" column="leader"/>
+        <result property="status" column="deptStatus"/>
+    </resultMap>
+
+    <resultMap id="RoleResult" type="com.airboot.project.system.model.entity.SysRole">
+        <id property="id" column="roleId"/>
+        <result property="roleName" column="role_name"/>
+        <result property="roleKey" column="role_key"/>
+        <result property="roleSort" column="role_sort"/>
+        <result property="dataScope" column="data_scope"/>
+        <result property="status" column="roleStatus"/>
+    </resultMap>
+
+    <sql id="selectUser">
+        select u.*, d.*, d.id as deptId, d.status as deptStatus, r.*, r.id as roleId, r.status as roleStatus
+        from sys_user u
+		left join sys_dept d on u.dept_id = d.id
+		left join sys_user_role ur on u.id = ur.user_id
+		left join sys_role r on r.id = ur.role_id
+    </sql>
+    
+    <sql id="selectList">
+        select u.*, d.id as deptId, d.dept_name, d.leader
+        from sys_user u
+        left join sys_dept d on u.dept_id = d.id
+        where !u.deleted
+        <if test="username != null and username != ''">
+            AND u.username like concat('%', #{username}, '%')
+        </if>
+        <if test="personName != null and personName != ''">
+            AND u.person_name like concat('%', #{personName}, '%')
+        </if>
+        <if test="status != null">
+            AND u.status = #{status}
+        </if>
+        <if test="mobile != null and mobile != ''">
+            AND u.mobile like concat('%', #{mobile}, '%')
+        </if>
+        <if test="beginTime != null and beginTime != ''"><!-- 开始时间检索 -->
+            AND date_format(u.create_time,'%y%m%d') &gt;= date_format(#{beginTime},'%y%m%d')
+        </if>
+        <if test="endTime != null and endTime != ''"><!-- 结束时间检索 -->
+            AND date_format(u.create_time,'%y%m%d') &lt;= date_format(#{endTime},'%y%m%d')
+        </if>
+        <if test="deptId != null and deptId != 0">
+            AND (u.dept_id = #{deptId} OR u.dept_id IN ( SELECT t.id FROM sys_dept t WHERE FIND_IN_SET
+            (#{deptId},ancestors) ))
+        </if>
+        <!-- 数据范围过滤 -->
+        ${dataScopeSql}
+    </sql>
+
+    <select id="findPage" resultMap="SysUserResult">
+        <include refid="selectList"></include>
+    </select>
+    
+    <select id="findList" resultMap="SysUserResult">
+        <include refid="selectList"></include>
+    </select>
+    
+    <select id="findByAccount" parameterType="String" resultMap="SysUserResult">
+        <include refid="selectUser"/>
+        where !u.deleted and (u.mobile = #{account} or u.username = #{account} or u.email = #{account})
+    </select>
+    
+    <select id="findNormalById" parameterType="Long" resultMap="SysUserResult">
+        select *
+        from sys_user
+        where id = #{id} and status = 1 and !deleted
+    </select>
+    
+    <select id="findNormalByMobile" parameterType="String" resultMap="SysUserResult">
+        select *
+        from sys_user
+        where mobile = #{mobile} and status = 1 and !deleted
+    </select>
+
+    <select id="findById" parameterType="Long" resultMap="SysUserResult">
+        <include refid="selectUser"/>
+        where u.id = #{userId} and !u.deleted
+    </select>
+
+    <select id="checkUsernameUnique" parameterType="String" resultMap="SysUserResult">
+		select id, username from sys_user where username = #{username} and !deleted
+	</select>
+
+    <select id="checkMobileUnique" parameterType="String" resultMap="SysUserResult">
+		select id, mobile from sys_user where mobile = #{mobile} and !deleted
+	</select>
+
+    <select id="checkEmailUnique" parameterType="String" resultMap="SysUserResult">
+		select id, email from sys_user where email = #{email} and !deleted
+	</select>
+
+    <delete id="deleteUserByIds" parameterType="Long">
+        update sys_user set deleted = true where id in
+        <foreach collection="array" item="userId" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
+    </delete>
+    
+    <select id="findListByRoleKey" resultMap="SysUserResult">
+        select u.*
+        from sys_user u
+		left join sys_user_role ur on u.id = ur.user_id
+		left join sys_role r on r.id = ur.role_id
+		where !u.deleted and u.status = 1
+		and r.role_key = #{roleKey}
+    </select>
+
+</mapper> 

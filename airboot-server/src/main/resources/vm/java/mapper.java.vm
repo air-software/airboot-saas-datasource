@@ -1,0 +1,38 @@
+package ${packageName}.mapper;
+
+import com.airboot.common.component.MyBaseMapper;
+import ${packageName}.model.entity.${ClassName};
+import ${packageName}.model.vo.Search${ClassName}VO;
+#if($table.tplCategory.getCode() == "crud")
+import com.baomidou.mybatisplus.core.metadata.IPage;
+#end
+
+import java.util.List;
+
+/**
+ * ${functionName}Mapper接口
+ * 
+ * @author ${author}
+ * @date ${datetime}
+ */
+public interface ${ClassName}Mapper extends MyBaseMapper<${ClassName}> {
+
+#if($table.tplCategory.getCode() == "crud")
+    /**
+     * 查询${functionName}分页
+     *
+     * @param search 查询条件
+     * @return 分页结果
+     */
+    IPage<${ClassName}> findPage(Search${ClassName}VO search);
+
+#end
+    /**
+     * 查询${functionName}列表，入参为空时可查询全部
+     * 
+     * @param search 查询条件
+     * @return ${functionName}集合
+     */
+    List<${ClassName}> findList(Search${ClassName}VO search);
+
+}

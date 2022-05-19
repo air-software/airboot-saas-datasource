@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.airboot.project.system.mapper.SysDeptMapper">
+
+    <select id="findList" resultType="com.airboot.project.system.model.entity.SysDept">
+        SELECT *
+        FROM sys_dept d
+        where !d.deleted
+        <if test="parentId != null and parentId != 0">
+            AND parent_id = #{parentId}
+        </if>
+        <if test="deptName != null and deptName != ''">
+            AND dept_name like concat('%', #{deptName}, '%')
+        </if>
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+        <!-- 数据范围过滤 -->
+        ${dataScopeSql}
+        order by d.parent_id, d.order_num
+    </select>
+
+    <select id="findIdListByRoleId" parameterType="Long" resultType="Long">
+        select d.id, d.parent_id
+        from sys_dept d
+        left join sys_role_dept rd on d.id = rd.dept_id
+        where rd.role_id = #{roleId}
+        and d.id not in (select d.parent_id from sys_dept d inner join sys_role_dept rd on d.id = rd.dept_id and rd.role_id = #{roleId})
+        order by d.parent_id, d.order_num
+    </select>
+
+    <select id="checkDeptExistUser" parameterType="Long" resultType="int">
+		select count(1) from sys_user where dept_id = #{deptId} and !deleted
+	</select>
+
+    <select id="hasChildByDeptId" parameterType="Long" resultType="int">
+		select count(1) from sys_dept
+		where !deleted and parent_id = #{deptId}
+	</select>
+
+    <select id="findChildrenDeptById" parameterType="Long" resultType="com.airboot.project.system.model.entity.SysDept">
+		select * from sys_dept where find_in_set(#{deptId}, ancestors)
+	</select>
+
+    <select id="findNormalChildrenDeptById" parameterType="Long" resultType="int">
+		select count(*) from sys_dept where status = 0 and !deleted and find_in_set(#{deptId}, ancestors)
+	</select>
+
+    <select id="checkDeptNameUnique" resultType="com.airboot.project.system.model.entity.SysDept">
+        SELECT * FROM sys_dept
+        where dept_name=#{deptName} and parent_id = #{parentId} and !deleted
+    </select>
+
+    <update id="updateDeptChildren" parameterType="java.util.List">
+        update sys_dept set ancestors =
+        <foreach collection="depts" item="item" index="index"
+                 separator=" " open="case id" close="end">
+            when #{item.id} then #{item.ancestors}
+        </foreach>
+        where id in
+        <foreach collection="depts" item="item" index="index"
+                 separator="," open="(" close=")">
+            #{item.id}
+        </foreach>
+    </update>
+
+    <update id="updateDeptStatus">
+        update sys_dept
+        <set>
+            <if test="status != null">status = #{status},</if>
+            <if test="updaterId != null">updater_id = #{updaterId},</if>
+            <if test="updaterInfo != null and updaterInfo != ''">updater_info = #{updaterInfo},</if>
+            update_time = #{updateTime}
+        </set>
+        where id in (${ancestors})
+    </update>
+
+    <delete id="deleteDeptById" parameterType="Long">
+		update sys_dept set deleted = TRUE where id = #{deptId}
+	</delete>
+
+</mapper> 

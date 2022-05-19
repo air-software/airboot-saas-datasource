@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="${packageName}.mapper.${ClassName}Mapper">
+
+#if(${autoResultMap})
+    <resultMap id="${ClassName}Result" type="${packageName}.model.entity.${ClassName}">
+#foreach ($column in $columns)
+#if(${column.primaryKey})
+        <id property="${column.javaField}" column="${column.columnName}"/>
+#else
+        <result property="${column.javaField}" column="${column.columnName}"/>
+#end
+#end
+    </resultMap>
+
+#end
+    <sql id="selectListSql">
+        select *
+        from ${tableName}
+        <where>
+            !deleted
+#foreach($column in $columns)
+#set($queryType=$column.queryType.getCode())
+#set($javaField=$column.javaField)
+#set($javaType=$column.javaType)
+#set($columnName=$column.columnName)
+#if($column.query)
+#if($queryType == "EQ")
+            <if test="$javaField != null#if($javaType == 'String' ) and $javaField.trim() != ''#end">
+                and $columnName = #{$javaField}
+            </if>
+#elseif($queryType == "NE")
+            <if test="$javaField != null#if($javaType == 'String' ) and $javaField.trim() != ''#end">
+                and $columnName != #{$javaField}
+            </if>
+#elseif($queryType == "GT")
+            <if test="$javaField != null#if($javaType == 'String' ) and $javaField.trim() != ''#end">
+                and $columnName &gt; #{$javaField}
+            </if>
+#elseif($queryType == "GTE")
+            <if test="$javaField != null#if($javaType == 'String' ) and $javaField.trim() != ''#end">
+                and $columnName &gt;= #{$javaField}
+            </if>
+#elseif($queryType == "LT")
+            <if test="$javaField != null#if($javaType == 'String' ) and $javaField.trim() != ''#end">
+                and $columnName &lt; #{$javaField}
+            </if>
+#elseif($queryType == "LTE")
+            <if test="$javaField != null#if($javaType == 'String' ) and $javaField.trim() != ''#end">
+                and $columnName &lt;= #{$javaField}
+            </if>
+#elseif($queryType == "LIKE")
+            <if test="$javaField != null#if($javaType == 'String' ) and $javaField.trim() != ''#end">
+                and $columnName like concat('%', #{$javaField}, '%')
+            </if>
+#elseif($queryType == "BETWEEN")
+            <if test="beginTime != null and beginTime != ''"><!-- 开始时间检索 -->
+                and date_format($columnName, '%y%m%d') &gt;= date_format(#{beginTime}, '%y%m%d')
+            </if>
+            <if test="endTime != null and endTime != ''"><!-- 结束时间检索 -->
+                and date_format($columnName, '%y%m%d') &lt;= date_format(#{endTime}, '%y%m%d')
+            </if>
+#end
+#end
+#end
+        </where>
+#if($table.tplCategory.getCode() == "tree")
+        order by parent_id, order_num
+#end
+    </sql>
+
+#if(${autoResultMap})
+#if($table.tplCategory.getCode() == "crud")
+    <select id="findPage" resultMap="${ClassName}Result">
+        <include refid="selectListSql"/>
+    </select>
+
+#end
+    <select id="findList" resultMap="${ClassName}Result">
+        <include refid="selectListSql"/>
+    </select>
+#else
+#if($table.tplCategory.getCode() == "crud")
+    <select id="findPage" resultType="${packageName}.model.entity.${ClassName}">
+        <include refid="selectListSql"/>
+    </select>
+
+#end
+    <select id="findList" resultType="${packageName}.model.entity.${ClassName}">
+        <include refid="selectListSql"/>
+    </select>
+#end
+
+</mapper>

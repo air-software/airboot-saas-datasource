@@ -1,0 +1,416 @@
+<template>
+  <div class="app-container">
+    <el-form :model="queryParams" class="query-form" ref="queryForm" :inline="true" label-width="68px">
+#set($isDateRange="false")
+#foreach($column in $columns)
+#if($column.query)
+#set($enumList=$column.enumList)
+#set($htmlType=$column.htmlType.getCode())
+#set($parentheseIndex=$column.columnComment.indexOf("（"))
+#if($parentheseIndex != -1)
+#set($comment=$column.columnComment.substring(0, $parentheseIndex))
+#else
+#set($comment=$column.columnComment)
+#end
+#if($htmlType == "input" || $htmlType == "textarea")
+      <el-form-item label="${comment}" prop="${column.javaField}">
+        <el-input
+          v-model="queryParams.${column.javaField}"
+          placeholder="请输入${comment}"
+          clearable
+          size="small"
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
+#elseif($htmlType == "select" || $htmlType == "radio")
+      <el-form-item label="${comment}" prop="${column.javaField}">
+        <el-select v-model="queryParams.${column.javaField}" placeholder="请选择${comment}" clearable size="small">
+#if($column.javaType == "Enum")
+#foreach($enum in $column.enumList)
+          <el-option value="${enum}" />
+#end
+#end
+#if($column.javaType == "boolean")
+          <el-option :value="true" label="${column.booleanDescMap.get("true")}" />
+          <el-option :value="false" label="${column.booleanDescMap.get("false")}" />
+#end
+        </el-select>
+      </el-form-item>
+#elseif($htmlType == "datetime" && $column.queryType.getCode() != "BETWEEN")
+      <el-form-item label="${comment}" prop="${column.javaField}">
+        <el-date-picker clearable size="small" style="width: 200px"
+          v-model="queryParams.${column.javaField}"
+          type="date"
+          value-format="yyyy-MM-dd"
+          placeholder="选择${comment}">
+        </el-date-picker>
+      </el-form-item>
+#elseif($htmlType == "datetime")
+#set($isDateRange="true")
+      <el-form-item label="${comment}">
+        <el-date-picker
+          v-model="dateRange"
+          size="small"
+          style="width: 240px"
+          value-format="yyyy-MM-dd"
+          type="daterange"
+          range-separator="-"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+        ></el-date-picker>
+      </el-form-item>
+#end
+#end
+#end
+      <el-form-item>
+        <el-button
+          class="filter-item"
+          type="primary"
+          icon="el-icon-search"
+          size="mini"
+          @click="handleQuery"
+        >搜索</el-button>
+        <el-button
+          class="filter-item"
+          type="primary"
+          icon="el-icon-plus"
+          size="mini"
+          @click="handleAdd()"
+          v-hasPermi="['${moduleName}:${businessName}:add']"
+        >新增</el-button>
+      </el-form-item>
+    </el-form>
+
+    <el-table
+      v-loading="loading"
+      :data="tableTreeData"
+      row-key="${treeCode}"
+      default-expand-all
+      :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
+    >
+#foreach($column in $columns)
+#set($javaField=$column.javaField)
+#set($htmlType=$column.htmlType.getCode())
+#set($parentheseIndex=$column.columnComment.indexOf("（"))
+#if($parentheseIndex != -1)
+#set($comment=$column.columnComment.substring(0, $parentheseIndex))
+#else
+#set($comment=$column.columnComment)
+#end
+#if($column.primaryKey)
+#elseif($column.list && $htmlType == "datetime")
+      <el-table-column label="${comment}" align="center" prop="${javaField}" width="180">
+        <template slot-scope="scope">
+          <span>{{ parseTime(scope.row.${javaField}, '{y}-{m}-{d}') }}</span>
+        </template>
+      </el-table-column>
+#elseif($column.list && $column.javaType == "boolean")
+      <el-table-column label="${comment}" align="center" prop="${javaField}" :formatter="${javaField}Format" />
+#elseif($column.list && "" != $javaField)
+      <el-table-column label="${comment}" align="center" prop="${javaField}" />
+#end
+#end
+      <el-table-column label="操作" align="center" width="200" class-name="small-padding fixed-width">
+        <template slot-scope="scope">
+          <el-button
+            size="mini"
+            type="text"
+            icon="el-icon-edit"
+            @click="handleUpdate(scope.row)"
+            v-hasPermi="['${moduleName}:${businessName}:edit']"
+          >修改</el-button>
+          <el-button
+            size="mini"
+            type="text"
+            icon="el-icon-plus"
+            @click="handleAdd(scope.row)"
+            v-hasPermi="['${moduleName}:${businessName}:add']"
+          >新增</el-button>
+          <el-button
+            size="mini"
+            type="text"
+            icon="el-icon-delete"
+            @click="handleDelete(scope.row)"
+            v-hasPermi="['${moduleName}:${businessName}:remove']"
+          >删除</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+
+    <!-- 添加或修改${functionName}对话框 -->
+    <el-dialog :title="title" :visible.sync="open" :close-on-click-modal="false" width="500px" append-to-body>
+      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+#foreach($column in $columns)
+#set($field=$column.javaField)
+#set($htmlType=$column.htmlType.getCode())
+#if($column.edit && !$column.primaryKey)
+#if(($column.usableColumn) || (!$column.superColumn))
+#set($parentheseIndex=$column.columnComment.indexOf("（"))
+#if($parentheseIndex != -1)
+#set($comment=$column.columnComment.substring(0, $parentheseIndex))
+#else
+#set($comment=$column.columnComment)
+#end
+#if("" != $treeParentCode && $column.javaField == $treeParentCode)
+        <el-form-item label="${comment}" prop="${treeParentCode}">
+          <treeselect v-model="form.${treeParentCode}" :options="${businessName}Options" :normalizer="normalizer" placeholder="请选择${comment}" />
+        </el-form-item>
+#elseif($htmlType == "input")
+        <el-form-item label="${comment}" prop="${field}">
+          <el-input v-model="form.${field}" placeholder="请输入${comment}" />
+        </el-form-item>
+#elseif($htmlType == "select" && $column.javaType == "Enum")
+        <el-form-item label="${comment}">
+          <el-select v-model="form.${field}" placeholder="请选择${comment}">
+#foreach($enum in $column.enumList)
+            <el-option value="${enum}" />
+#end
+          </el-select>
+        </el-form-item>
+#elseif($htmlType == "select" && $column.javaType == "boolean")
+        <el-form-item label="${comment}">
+          <el-select v-model="form.${field}" placeholder="请选择${comment}">
+            <el-option :value="true" label="${column.booleanDescMap.get("true")}" />
+            <el-option :value="false" label="${column.booleanDescMap.get("false")}" />
+          </el-select>
+        </el-form-item>
+#elseif($htmlType == "radio" && $column.javaType == "Enum")
+        <el-form-item label="${comment}">
+          <el-radio-group v-model="form.${field}">
+#foreach($enum in $column.enumList)
+            <el-radio label="${enum}" />
+#end
+          </el-radio-group>
+        </el-form-item>
+#elseif($htmlType == "radio" && $column.javaType == "boolean")
+        <el-form-item label="${comment}">
+          <el-radio-group v-model="form.${field}">
+            <el-radio :label="true">${column.booleanDescMap.get("true")}</el-radio>
+            <el-radio :label="false">${column.booleanDescMap.get("false")}</el-radio>
+          </el-radio-group>
+        </el-form-item>
+#elseif($htmlType == "datetime")
+        <el-form-item label="${comment}" prop="${field}">
+          <el-date-picker clearable size="small" style="width: 200px"
+            v-model="form.${field}"
+            type="date"
+            value-format="yyyy-MM-dd"
+            placeholder="选择${comment}">
+          </el-date-picker>
+        </el-form-item>
+#elseif($htmlType == "textarea")
+        <el-form-item label="${comment}" prop="${field}">
+          <el-input v-model="form.${field}" type="textarea" placeholder="请输入${comment}" />
+        </el-form-item>
+#end
+#end
+#end
+#end
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button :loading="submitLoading" type="primary" @click="submitForm">确 定</el-button>
+        <el-button @click="cancel">取 消</el-button>
+      </div>
+    </el-dialog>
+  </div>
+</template>
+
+<script>
+import { list${BusinessName}, get${BusinessName}, del${BusinessName}, add${BusinessName}, update${BusinessName}, export${BusinessName} } from '@/api/${moduleName}/${businessName}'
+import Treeselect from '@riophae/vue-treeselect'
+import '@riophae/vue-treeselect/dist/vue-treeselect.css'
+
+export default {
+  name: '${BusinessName}',
+  components: { Treeselect },
+  data() {
+    return {
+      // 遮罩层
+      loading: true,
+      // ${functionName}表格数据
+      tableTreeData: [],
+      // ${functionName}树选项
+      ${businessName}Options: [],
+      // 弹出层标题
+      title: '',
+      // 是否显示弹出层
+      open: false,
+#if($isDateRange=="true")
+      // 日期范围
+      dateRange: [],
+#end
+      // 查询参数
+      queryParams: {
+#foreach ($column in $columns)
+#if($column.query)
+        $column.javaField: undefined#if($velocityCount != $columns.size()),#end
+
+#end
+#end
+      },
+      // 表单参数
+      form: {},
+      // 表单校验
+      rules: {
+#foreach ($column in $columns)
+#if($column.required)
+#set($parentheseIndex=$column.columnComment.indexOf("（"))
+#if($parentheseIndex != -1)
+#set($comment=$column.columnComment.substring(0, $parentheseIndex))
+#else
+#set($comment=$column.columnComment)
+#end
+#set($comment=$column.columnComment)
+        $column.javaField: [
+          { required: true, message: '$comment不能为空', trigger: 'blur' }
+        ]#if($velocityCount != $columns.size()),#end
+
+#end
+#end
+      },
+      submitLoading: false
+    }
+  },
+  created() {
+    this.getList()
+    this.getTreeselect()
+  },
+  methods: {
+    // 查询${functionName}列表
+    getList() {
+      this.loading = true
+#if($isDateRange=="true")
+      list${BusinessName}(this.addDateRange(this.queryParams, this.dateRange)).then(data => {
+#else
+      list${BusinessName}(this.queryParams).then(data => {
+#end
+        this.tableTreeData = this.handleTree(data, '${treeCode}', '${treeParentCode}')
+        this.loading = false
+      })
+    },
+#foreach ($column in $columns)
+#if($column.javaType == "boolean" && $column.list)
+#set($parentheseIndex=$column.columnComment.indexOf("（"))
+#if($parentheseIndex != -1)
+#set($comment=$column.columnComment.substring(0, $parentheseIndex))
+#else
+#set($comment=$column.columnComment)
+#end
+    // $comment布尔值翻译
+    ${column.javaField}Format(row, column) {
+      return row.${column.javaField} ? '${column.booleanDescMap.get("true")}' : '${column.booleanDescMap.get("false")}'
+    },
+#end
+#end
+    // 转换${functionName}数据结构
+    normalizer(node) {
+      if (node.children && !node.children.length) {
+        delete node.children
+      }
+      return {
+        id: node.${treeCode},
+        label: node.${treeName},
+        children: node.children
+      }
+    },
+    // 查询下拉树结构
+    getTreeselect() {
+      list${BusinessName}().then(data => {
+        this.${businessName}Options = []
+        const treeData = { ${treeCode}: 0, ${treeName}: '顶级节点', children: [] }
+        treeData.children = this.handleTree(data, '${treeCode}', '${treeParentCode}')
+        this.${businessName}Options.push(treeData)
+      })
+    },
+    // 搜索按钮操作
+    handleQuery() {
+      this.getList()
+    },
+    // 重置按钮操作
+    resetQuery() {
+#if($isDateRange=="true")
+      this.dateRange = []
+#end
+      this.resetForm('queryForm')
+      this.handleQuery()
+    },
+    // 新增按钮操作
+    handleAdd(row) {
+      this.reset()
+      this.getTreeselect()
+      this.form.${treeParentCode} = row && row.${treeCode}
+      this.open = true
+      this.title = '添加${functionName}'
+    },
+    // 修改按钮操作
+    handleUpdate(row) {
+      this.reset()
+      this.getTreeselect()
+      get${BusinessName}(row.${pkColumn.javaField}).then(data => {
+        this.form = data
+        this.open = true
+        this.title = '修改${functionName}'
+      })
+    },
+    // 取消按钮
+    cancel() {
+      this.open = false
+      this.reset()
+    },
+    // 表单重置
+    reset() {
+      this.form = {
+#foreach ($column in $columns)
+#if($column.edit)
+#if($column.enumList.size() != 0)
+        $column.javaField: '${column.enumList[0]}'#if($velocityCount != $columns.size()),#end
+
+#elseif($column.javaType == "boolean")
+        $column.javaField: false#if($velocityCount != $columns.size()),#end
+
+#else
+        $column.javaField: undefined#if($velocityCount != $columns.size()),#end
+
+#end
+#end
+#end
+      }
+      this.resetForm('form')
+    },
+    // 提交按钮
+    submitForm() {
+      this.#[[$]]#refs['form'].validate(valid => {
+        if (valid) {
+          this.submitLoading = true
+          if (this.form.${pkColumn.javaField} !== undefined) {
+            update${BusinessName}(this.form).then(data => {
+              this.msgSuccess('修改成功')
+              this.open = false
+              this.getList()
+            }).finally(() => this.submitLoading = false)
+          } else {
+            add${BusinessName}(this.form).then(data => {
+              this.msgSuccess('新增成功')
+              this.open = false
+              this.getList()
+            }).finally(() => this.submitLoading = false)
+          }
+        }
+      })
+    },
+    // 删除按钮操作
+    handleDelete(row) {
+      this.$confirm('是否确认删除${functionName}编号为【' + row.${pkColumn.javaField} + '】的数据项?', '警告', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(function() {
+        return del${BusinessName}(row.${pkColumn.javaField})
+      }).then(() => {
+        this.getList()
+        this.msgSuccess('删除成功')
+      }).catch(function() {})
+    }
+  }
+}
+</script>

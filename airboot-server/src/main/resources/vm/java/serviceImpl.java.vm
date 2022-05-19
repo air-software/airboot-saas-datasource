@@ -1,0 +1,97 @@
+package ${packageName}.service.impl;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import ${packageName}.mapper.${ClassName}Mapper;
+import ${packageName}.model.entity.${ClassName};
+import ${packageName}.model.vo.Search${ClassName}VO;
+#if($table.tplCategory.getCode() == "crud")
+import com.baomidou.mybatisplus.core.metadata.IPage;
+#end
+import ${packageName}.service.I${ClassName}Service;
+
+import javax.annotation.Resource;
+import java.util.List;
+
+/**
+ * ${functionName}Service业务层处理
+ * 
+ * @author ${author}
+ * @date ${datetime}
+ */
+@Slf4j
+@Service
+public class ${ClassName}ServiceImpl implements I${ClassName}Service {
+
+    @Resource
+    private ${ClassName}Mapper ${className}Mapper;
+
+#if($table.tplCategory.getCode() == "crud")
+    /**
+     * 查询${functionName}分页
+     *
+     * @param search 查询条件
+     * @return 分页结果
+     */
+    @Override
+    public IPage<${ClassName}> getPage(Search${ClassName}VO search) {
+        return ${className}Mapper.findPage(search);
+    }
+
+#end
+    /**
+     * 查询${functionName}列表，入参为空时可查询全部
+     * 
+     * @param search 查询条件
+     * @return ${functionName}
+     */
+    @Override
+    public List<${ClassName}> getList(Search${ClassName}VO search) {
+        return ${className}Mapper.findList(search);
+    }
+
+    /**
+     * 查询${functionName}
+     *
+     * @param ${pkColumn.javaField} ${functionName}ID
+     * @return ${functionName}
+     */
+    @Override
+    public ${ClassName} getById(${pkColumn.javaType} ${pkColumn.javaField}) {
+        return ${className}Mapper.selectById(${pkColumn.javaField});
+    }
+
+    /**
+     * 新增或修改${functionName}
+     * 
+     * @param ${className} ${functionName}
+     * @return 结果
+     */
+    @Override
+    public void saveOrUpdate(${ClassName} ${className}) {
+        ${className}Mapper.saveOrUpdate(${className});
+    }
+
+    /**
+     * 删除${functionName}信息
+     *
+     * @param ${pkColumn.javaField} ${functionName}ID
+     * @return 结果
+     */
+    @Override
+    public int deleteById(${pkColumn.javaType} ${pkColumn.javaField}) {
+        return ${className}Mapper.deleteById(${pkColumn.javaField});
+    }
+
+    /**
+     * 批量删除${functionName}
+     * 
+     * @param ${pkColumn.javaField}List 需要删除的${functionName}ID
+     * @return 结果
+     */
+    @Override
+    public int deleteByIds(List<${pkColumn.javaType}> ${pkColumn.javaField}List) {
+        return ${className}Mapper.deleteBatchIds(${pkColumn.javaField}List);
+    }
+
+}
