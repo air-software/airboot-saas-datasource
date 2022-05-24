@@ -35,6 +35,8 @@ public class GenUtils {
         JSONObject optionsJson = new JSONObject();
         // 自动生成 Mybatis 的 ResultMap
         optionsJson.put("autoResultMap", true);
+        // 是否需要生成 Service 的 Interface，默认为 true
+        optionsJson.put("interfaceService", true);
         genTable.setOptions(optionsJson.toJSONString());
     }
     

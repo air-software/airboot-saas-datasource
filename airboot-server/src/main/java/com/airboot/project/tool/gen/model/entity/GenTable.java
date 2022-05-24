@@ -142,6 +142,12 @@ public class GenTable extends BaseEntity {
     private Boolean autoResultMap;
     
     /**
+     * 是否需要生成Service的Interface，如果业务不复杂且确定未来不会用到多态，则可以不生成Interface，直接使用Service，方便应对需求变更
+     */
+    @TableField(exist = false)
+    private Boolean interfaceService;
+    
+    /**
      * 请求参数
      */
     @TableField(exist = false)

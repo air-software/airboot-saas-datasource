@@ -190,7 +190,8 @@ export default {
             treeName: genTable.treeName,
             treeParentCode: genTable.treeParentCode,
             parentMenuId: genTable.parentMenuId,
-            autoResultMap: genTable.autoResultMap
+            autoResultMap: genTable.autoResultMap,
+            interfaceService: genTable.interfaceService
           }
           this.submitLoading = true
           updateGenTable(genTable).then(data => {

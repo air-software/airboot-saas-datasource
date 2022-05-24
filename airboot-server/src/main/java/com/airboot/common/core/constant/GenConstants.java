@@ -48,6 +48,11 @@ public class GenConstants {
     public static final String AUTO_RESULT_MAP = "autoResultMap";
     
     /**
+     * 是否需要生成Service的Interface，如果业务不复杂且确定未来不会用到多态，则可以不生成Interface，直接使用Service，方便应对需求变更
+     */
+    public static final String INTERFACE_SERVICE = "interfaceService";
+    
+    /**
      * 数据库字符串类型
      */
     public static final String[] COLUMNTYPE_STR = {"char", "varchar", "narchar", "varchar2", "tinytext", "text", "mediumtext", "longtext"};
@@ -163,7 +168,7 @@ public class GenConstants {
     public static final String TYPE_ENUM = "Enum";
     
     /**
-     * 布尔类型（不使用包装类）
+     * 布尔类型
      */
     public static final String TYPE_BOOLEAN = "Boolean";
     

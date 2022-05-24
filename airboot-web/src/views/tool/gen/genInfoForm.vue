@@ -1,5 +1,5 @@
 <template>
-  <el-form ref="genInfoForm" :model="info" :rules="rules" label-width="150px">
+  <el-form ref="genInfoForm" :model="info" :rules="rules" label-width="170px">
     <el-row>
       <el-col :span="12">
         <el-form-item prop="tplCategory">
@@ -87,6 +87,21 @@
             </el-tooltip>
           </span>
           <el-radio-group v-model="info.autoResultMap">
+            <el-radio :label="true">是</el-radio>
+            <el-radio :label="false">否</el-radio>
+          </el-radio-group>
+        </el-form-item>
+      </el-col>
+
+      <el-col :span="12">
+        <el-form-item prop="interfaceService">
+          <span slot="label">
+            生成Service Interface
+            <el-tooltip content="是否需要生成Service的Interface，如果业务不复杂且确定未来不会用到多态，则可以不生成Interface，直接使用Service，方便应对需求变更" placement="top">
+              <i class="el-icon-question"></i>
+            </el-tooltip>
+          </span>
+          <el-radio-group v-model="info.interfaceService">
             <el-radio :label="true">是</el-radio>
             <el-radio :label="false">否</el-radio>
           </el-radio-group>

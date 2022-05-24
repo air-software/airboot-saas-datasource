@@ -191,12 +191,13 @@ public class GenTableServiceImpl implements IGenTableService {
         // 查询列信息
         List<GenTableColumn> columns = table.getColumns();
         setPkColumn(table, columns);
+        setTableFromOptions(table);
         VelocityInitializer.initVelocity();
         
         VelocityContext context = VelocityUtils.prepareContext(table);
         
         // 获取模板列表
-        List<String> templates = VelocityUtils.getTemplateList(table.getTplCategory());
+        List<String> templates = VelocityUtils.getTemplateList(table);
         for (String template : templates) {
             // 渲染模板
             StringWriter sw = new StringWriter();
@@ -248,13 +249,14 @@ public class GenTableServiceImpl implements IGenTableService {
         // 查询列信息
         List<GenTableColumn> columns = table.getColumns();
         setPkColumn(table, columns);
+        setTableFromOptions(table);
         
         VelocityInitializer.initVelocity();
         
         VelocityContext context = VelocityUtils.prepareContext(table);
         
         // 获取模板列表
-        List<String> templates = VelocityUtils.getTemplateList(table.getTplCategory());
+        List<String> templates = VelocityUtils.getTemplateList(table);
         for (String template : templates) {
             // 渲染模板
             StringWriter sw = new StringWriter();
@@ -325,6 +327,7 @@ public class GenTableServiceImpl implements IGenTableService {
             String parentMenuId = paramsObj.getString(GenConstants.PARENT_MENU_ID);
             String parentMenuName = paramsObj.getString(GenConstants.PARENT_MENU_NAME);
             boolean autoResultMap = paramsObj.getBooleanValue(GenConstants.AUTO_RESULT_MAP);
+            boolean interfaceService = paramsObj.getBooleanValue(GenConstants.INTERFACE_SERVICE);
             
             genTable.setTreeCode(treeCode);
             genTable.setTreeParentCode(treeParentCode);
@@ -332,6 +335,7 @@ public class GenTableServiceImpl implements IGenTableService {
             genTable.setParentMenuId(parentMenuId);
             genTable.setParentMenuName(parentMenuName);
             genTable.setAutoResultMap(autoResultMap);
+            genTable.setInterfaceService(interfaceService);
         }
     }
 }

@@ -15,7 +15,11 @@ import ${packageName}.model.vo.Search${ClassName}VO;
 #if($table.tplCategory.getCode() == "crud")
 import com.baomidou.mybatisplus.core.metadata.IPage;
 #end
+#if(${interfaceService})
 import ${packageName}.service.I${ClassName}Service;
+#else
+import ${packageName}.service.${ClassName}Service;
+#end
 import com.airboot.common.component.BaseController;
 import com.airboot.common.model.vo.AjaxResult;
 import com.airboot.common.core.utils.poi.ExcelUtil;
@@ -38,8 +42,13 @@ import java.util.List;
 @RequestMapping("/${moduleName}/${businessName}")
 public class ${ClassName}Controller extends BaseController {
 
+#if(${interfaceService})
     @Resource
     private I${ClassName}Service ${className}Service;
+#else
+    @Resource
+    private ${ClassName}Service ${className}Service;
+#end
 
 #if($table.tplCategory.getCode() == "crud")
     /**

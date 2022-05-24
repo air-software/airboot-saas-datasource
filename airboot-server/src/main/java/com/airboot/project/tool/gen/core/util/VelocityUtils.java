@@ -78,6 +78,7 @@ public class VelocityUtils {
         String parentMenuId = getParentMenuId(paramsObj);
         context.put("parentMenuId", parentMenuId);
         context.put("autoResultMap", paramsObj != null && paramsObj.getBooleanValue(GenConstants.AUTO_RESULT_MAP));
+        context.put("interfaceService", paramsObj != null && paramsObj.getBooleanValue(GenConstants.INTERFACE_SERVICE));
     }
     
     public static void setTreeVelocityContext(VelocityContext context, GenTable genTable) {
@@ -104,20 +105,24 @@ public class VelocityUtils {
      *
      * @return 模板列表
      */
-    public static List<String> getTemplateList(TplCategoryEnum tplCategory) {
+    public static List<String> getTemplateList(GenTable genTable) {
         List<String> templates = new ArrayList<>();
         templates.add("vm/java/model-entity.java.vm");
         templates.add("vm/java/model-vo.java.vm");
         templates.add("vm/java/mapper.java.vm");
-        templates.add("vm/java/service.java.vm");
-        templates.add("vm/java/serviceImpl.java.vm");
+        if (genTable.getInterfaceService()) {
+            templates.add("vm/java/service.java.vm");
+            templates.add("vm/java/serviceImpl.java.vm");
+        } else {
+            templates.add("vm/java/service-pure.java.vm");
+        }
         templates.add("vm/java/controller.java.vm");
         templates.add("vm/xml/mapper.xml.vm");
         templates.add("vm/sql/sql.vm");
         templates.add("vm/js/api.js.vm");
-        if (TplCategoryEnum.单表.equals(tplCategory)) {
+        if (TplCategoryEnum.单表.equals(genTable.getTplCategory())) {
             templates.add("vm/vue/index.vue.vm");
-        } else if (TplCategoryEnum.树表.equals(tplCategory)) {
+        } else if (TplCategoryEnum.树表.equals(genTable.getTplCategory())) {
             templates.add("vm/vue/index-tree.vue.vm");
         }
         return templates;
@@ -152,6 +157,8 @@ public class VelocityUtils {
             fileName = StringUtils.format("{}/service/I{}Service.java", javaPath, className);
         } else if (template.contains("serviceImpl.java.vm")) {
             fileName = StringUtils.format("{}/service/impl/{}ServiceImpl.java", javaPath, className);
+        } else if (template.contains("service-pure.java.vm")) {
+            fileName = StringUtils.format("{}/service/{}Service.java", javaPath, className);
         } else if (template.contains("controller.java.vm")) {
             fileName = StringUtils.format("{}/controller/{}Controller.java", javaPath, className);
         } else if (template.contains("mapper.xml.vm")) {

@@ -235,6 +235,17 @@ export default {
     /** 预览按钮 */
     handlePreview(row) {
       previewTable(row.id).then(data => {
+        // 如果上次预览的标签这次不存在，则重置tab的位置
+        let resetFlag = true
+        Object.keys(data).forEach(key => {
+          const tabName = key.substring(key.lastIndexOf('/')+1,key.indexOf('.vm'))
+          if (this.preview.activeName === tabName) {
+            resetFlag = false
+          }
+        })
+        if (resetFlag) {
+          this.preview.activeName = 'model-entity.java'
+        }
         this.preview.data = data
         this.preview.open = true
       })
