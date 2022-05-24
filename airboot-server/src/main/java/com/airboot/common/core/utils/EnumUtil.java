@@ -3,6 +3,7 @@ package com.airboot.common.core.utils;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.airboot.common.core.constant.Constants;
 import com.airboot.common.core.exception.CustomException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.StandardEnvironment;
@@ -156,6 +157,28 @@ public class EnumUtil {
                 Class<?> enumClass = Class.forName(fullName);
                 String key = StrUtil.removeSufAndLowerFirst(simpleName, "Enum");
                 resultMap.put(key, getNameList(enumClass));
+            } catch (Exception e) {
+                log.error("---获取枚举类异常, 枚举类全限定名={}---", fullName, e);
+                throw new CustomException("获取枚举类异常", e);
+            }
+        });
+        return resultMap;
+    }
+    
+    /**
+     * 获取系统中所有可展示给前端的枚举name列表
+     *
+     * @return 包含系统所有所有可展示给前端的枚举name列表的Map，key: 枚举简单名（驼峰式并去掉Enum后缀），value: 枚举name列表
+     */
+    public static Map<String, List<String>> getAllFrontShowNameList() {
+        Map<String, List<String>> resultMap = new HashMap<>();
+        ENUM_MAP.forEach((simpleName, fullName) -> {
+            try {
+                Class<?> enumClass = Class.forName(fullName);
+                String key = StrUtil.removeSufAndLowerFirst(simpleName, "Enum");
+                if (StringUtils.equalsAnyIgnoreCase(key, Constants.FRONT_SHOW_ENUMS)) {
+                    resultMap.put(key, getNameList(enumClass));
+                }
             } catch (Exception e) {
                 log.error("---获取枚举类异常, 枚举类全限定名={}---", fullName, e);
                 throw new CustomException("获取枚举类异常", e);

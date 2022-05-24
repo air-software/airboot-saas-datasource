@@ -92,6 +92,11 @@ public class Constants {
         "/actuator**", "/error"};
     
     /**
+     * 允许展示给前端的枚举列表
+     */
+    public static final String[] FRONT_SHOW_ENUMS = {"status", "success", "device", "cardType", "gender"};
+    
+    /**
      * 数据库URL前缀
      */
     public static String JDBC_URL_PREFIX = "jdbc:mysql://";
