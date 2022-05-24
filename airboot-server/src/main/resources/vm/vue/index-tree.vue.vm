@@ -26,8 +26,12 @@
       <el-form-item label="${comment}" prop="${column.javaField}">
         <el-select v-model="queryParams.${column.javaField}" placeholder="请选择${comment}" clearable size="small">
 #if($column.javaType == "Enum")
+#if(${globalEnums} && $column.enumFrontShow)
+          <el-option v-for="item in $enums.${column.enumFrontKey}" :key="item" :value="item" />
+#else
 #foreach($enum in $column.enumList)
           <el-option value="${enum}" />
+#end
 #end
 #end
 #if($column.javaType == "Boolean")
@@ -162,8 +166,12 @@
 #elseif($htmlType == "select" && $column.javaType == "Enum")
         <el-form-item label="${comment}">
           <el-select v-model="form.${field}" placeholder="请选择${comment}">
+#if(${globalEnums} && $column.enumFrontShow)
+            <el-option v-for="item in $enums.${column.enumFrontKey}" :key="item" :value="item" />
+#else
 #foreach($enum in $column.enumList)
             <el-option value="${enum}" />
+#end
 #end
           </el-select>
         </el-form-item>
@@ -177,8 +185,12 @@
 #elseif($htmlType == "radio" && $column.javaType == "Enum")
         <el-form-item label="${comment}">
           <el-radio-group v-model="form.${field}">
+#if(${globalEnums} && $column.enumFrontShow)
+            <el-radio v-for="item in $enums.${column.enumFrontKey}" :key="item" :label="item" />
+#else
 #foreach($enum in $column.enumList)
             <el-radio label="${enum}" />
+#end
 #end
           </el-radio-group>
         </el-form-item>

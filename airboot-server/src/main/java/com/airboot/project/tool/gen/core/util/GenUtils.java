@@ -33,10 +33,12 @@ public class GenUtils {
     
         // 初始化额外选项
         JSONObject optionsJson = new JSONObject();
-        // 自动生成 Mybatis 的 ResultMap
+        // 自动生成 Mybatis 的 ResultMap，默认为 true
         optionsJson.put("autoResultMap", true);
         // 是否需要生成 Service 的 Interface，默认为 true
         optionsJson.put("interfaceService", true);
+        // 是否使用前端全局$enums枚举变量来配置下拉菜单等组件，默认为 false
+        optionsJson.put("globalEnums", false);
         genTable.setOptions(optionsJson.toJSONString());
     }
     

@@ -148,6 +148,12 @@ public class GenTable extends BaseEntity {
     private Boolean interfaceService;
     
     /**
+     * 是否使用前端全局$enums枚举变量来配置下拉菜单等组件，如开启使用，请确保你在系统中已建好枚举，并配置到了Constants.FRONT_SHOW_ENUMS中
+     */
+    @TableField(exist = false)
+    private Boolean globalEnums;
+    
+    /**
      * 请求参数
      */
     @TableField(exist = false)

@@ -191,7 +191,8 @@ export default {
             treeParentCode: genTable.treeParentCode,
             parentMenuId: genTable.parentMenuId,
             autoResultMap: genTable.autoResultMap,
-            interfaceService: genTable.interfaceService
+            interfaceService: genTable.interfaceService,
+            globalEnums: genTable.globalEnums
           }
           this.submitLoading = true
           updateGenTable(genTable).then(data => {

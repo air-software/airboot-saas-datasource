@@ -1,5 +1,7 @@
 package com.airboot.project.tool.gen.core.util;
 
+import cn.hutool.core.util.StrUtil;
+import com.airboot.common.core.constant.Constants;
 import com.airboot.common.core.constant.GenConstants;
 import com.airboot.common.core.exception.CustomException;
 import com.airboot.common.core.utils.DateUtils;
@@ -79,6 +81,7 @@ public class VelocityUtils {
         context.put("parentMenuId", parentMenuId);
         context.put("autoResultMap", paramsObj != null && paramsObj.getBooleanValue(GenConstants.AUTO_RESULT_MAP));
         context.put("interfaceService", paramsObj != null && paramsObj.getBooleanValue(GenConstants.INTERFACE_SERVICE));
+        context.put("globalEnums", paramsObj != null && paramsObj.getBooleanValue(GenConstants.GLOBAL_ENUMS));
     }
     
     public static void setTreeVelocityContext(VelocityContext context, GenTable genTable) {
@@ -364,6 +367,10 @@ public class VelocityUtils {
                     // 设置枚举简单名
                     String[] strArr = StringUtils.split(column.getEnumFullName(), ".");
                     column.setEnumSimpleName(strArr[strArr.length - 1]);
+                    // 设置枚举前端key
+                    column.setEnumFrontKey(StrUtil.removeSufAndLowerFirst(column.getEnumSimpleName(), "Enum"));
+                    // 设置枚举是否前端展示
+                    column.setEnumFrontShow(StringUtils.equalsAnyIgnoreCase(column.getEnumFrontKey(), Constants.FRONT_SHOW_ENUMS));
                 } catch (Exception e) {
                     log.error("---获取枚举类异常, 枚举类全限定名={}---", column.getEnumFullName(), e);
                     throw new CustomException("获取枚举类异常", e);

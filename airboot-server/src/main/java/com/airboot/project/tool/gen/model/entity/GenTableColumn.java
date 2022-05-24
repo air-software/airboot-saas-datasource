@@ -129,6 +129,18 @@ public class GenTableColumn extends BaseEntity {
     private String enumSimpleName;
     
     /**
+     * 枚举是否前端展示
+     */
+    @TableField(exist = false)
+    private boolean enumFrontShow;
+    
+    /**
+     * 枚举前端key
+     */
+    @TableField(exist = false)
+    private String enumFrontKey;
+    
+    /**
      * 枚举列表
      */
     @Builder.Default

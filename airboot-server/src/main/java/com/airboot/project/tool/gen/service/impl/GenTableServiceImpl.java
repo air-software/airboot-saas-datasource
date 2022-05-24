@@ -328,6 +328,7 @@ public class GenTableServiceImpl implements IGenTableService {
             String parentMenuName = paramsObj.getString(GenConstants.PARENT_MENU_NAME);
             boolean autoResultMap = paramsObj.getBooleanValue(GenConstants.AUTO_RESULT_MAP);
             boolean interfaceService = paramsObj.getBooleanValue(GenConstants.INTERFACE_SERVICE);
+            boolean globalEnums = paramsObj.getBooleanValue(GenConstants.GLOBAL_ENUMS);
             
             genTable.setTreeCode(treeCode);
             genTable.setTreeParentCode(treeParentCode);
@@ -336,6 +337,7 @@ public class GenTableServiceImpl implements IGenTableService {
             genTable.setParentMenuName(parentMenuName);
             genTable.setAutoResultMap(autoResultMap);
             genTable.setInterfaceService(interfaceService);
+            genTable.setGlobalEnums(globalEnums);
         }
     }
 }

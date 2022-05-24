@@ -53,6 +53,11 @@ public class GenConstants {
     public static final String INTERFACE_SERVICE = "interfaceService";
     
     /**
+     * 代码生成时是否使用前端全局$enums枚举变量来配置下拉菜单等组件，如开启使用，请确保你在系统中已建好枚举，并配置到了Constants.FRONT_SHOW_ENUMS中
+     */
+    public static final String GLOBAL_ENUMS = "globalEnums";
+    
+    /**
      * 数据库字符串类型
      */
     public static final String[] COLUMNTYPE_STR = {"char", "varchar", "narchar", "varchar2", "tinytext", "text", "mediumtext", "longtext"};
