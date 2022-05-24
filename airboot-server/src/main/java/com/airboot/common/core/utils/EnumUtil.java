@@ -2,6 +2,8 @@ package com.airboot.common.core.utils;
 
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ReflectUtil;
+import cn.hutool.core.util.StrUtil;
+import com.airboot.common.core.exception.CustomException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.StandardEnvironment;
 import org.springframework.core.io.Resource;
@@ -11,7 +13,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.ClassUtils;
 
 import javax.annotation.PostConstruct;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -54,7 +58,17 @@ public class EnumUtil {
     }
     
     /**
+     * 获取系统中的所有枚举
+     *
+     * @return 包含系统所有枚举的Map，key: 枚举简单名，value: 枚举全限定名
+     */
+    public static Map<String, String> getAllEnums() {
+        return ENUM_MAP;
+    }
+    
+    /**
      * 根据表字段名获取对应枚举类全限定名
+     *
      * @param columnName 字段名
      * @return 枚举类全限定名
      */
@@ -110,6 +124,44 @@ public class EnumUtil {
      */
     public static Map<Object, Object> getCodeNameMap(Class<? extends Enum<?>> clazz) {
         return getFieldNameMap(clazz, "code");
+    }
+    
+    /**
+     * 获取枚举的name列表
+     *
+     * @param clazz 枚举类
+     * @return name列表
+     */
+    public static List<String> getNameList(Class<?> clazz) {
+        List<String> nameList = new ArrayList<>();
+        Object[] enumConstants = clazz.getEnumConstants();
+        if (enumConstants != null) {
+            for (Object enumConstant : enumConstants) {
+                Enum enumobj = (Enum) enumConstant;
+                nameList.add(enumobj.name());
+            }
+        }
+        return nameList;
+    }
+    
+    /**
+     * 获取系统中的所有枚举name列表
+     *
+     * @return 包含系统所有枚举name列表的Map，key: 枚举简单名（驼峰式并去掉Enum后缀），value: 枚举name列表
+     */
+    public static Map<String, List<String>> getAllNameList() {
+        Map<String, List<String>> resultMap = new HashMap<>();
+        ENUM_MAP.forEach((simpleName, fullName) -> {
+            try {
+                Class<?> enumClass = Class.forName(fullName);
+                String key = StrUtil.removeSufAndLowerFirst(simpleName, "Enum");
+                resultMap.put(key, getNameList(enumClass));
+            } catch (Exception e) {
+                log.error("---获取枚举类异常, 枚举类全限定名={}---", fullName, e);
+                throw new CustomException("获取枚举类异常", e);
+            }
+        });
+        return resultMap;
     }
     
 }

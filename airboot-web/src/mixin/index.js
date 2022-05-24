@@ -11,7 +11,8 @@ export default {
     ...mapGetters({
       $loginTenant: 'tenant',
       $loginUser: 'user',
-      $isTenantAdmin: 'isTenantAdmin'
+      $isTenantAdmin: 'isTenantAdmin',
+      $enums: 'enums'
     })
   },
   methods: {

@@ -2,6 +2,7 @@ package com.airboot.common.security.controller;
 
 import com.airboot.common.core.manager.AsyncManager;
 import com.airboot.common.core.manager.factory.AsyncFactory;
+import com.airboot.common.core.utils.EnumUtil;
 import com.airboot.common.core.utils.MessageUtils;
 import com.airboot.common.core.utils.StringUtils;
 import com.airboot.common.model.enums.LoginResultEnum;
@@ -110,6 +111,7 @@ public class SysLoginController {
         dataMap.put("roles", roles);
         dataMap.put("permissions", permissions);
         dataMap.put("tenant", tenantService.getById(loginUser.getTenantId()));
+        dataMap.put("enums", EnumUtil.getAllNameList());
         return AjaxResult.success(dataMap);
     }
     

@@ -10,6 +10,7 @@ const getters = {
   user: state => state.user.user,
   tenant: state => state.user.tenant,
   isTenantAdmin: state => state.user.user.tenantAdmin,  // 是否超级租户管理员
+  enums: state => state.user.enums,
   introduction: state => state.user.introduction,
   roles: state => state.user.roles,
   permissions: state => state.user.permissions,

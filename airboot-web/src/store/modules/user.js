@@ -9,7 +9,8 @@ const user = {
     roles: [],
     permissions: [],
     user: {},
-    tenant: {}
+    tenant: {},
+    enums: {}
   },
 
   mutations: {
@@ -33,6 +34,9 @@ const user = {
     },
     SET_TENANT: (state, tenant) => {
       state.tenant = tenant
+    },
+    SET_ENUMS: (state, enums) => {
+      state.enums = enums
     }
   },
 
@@ -71,6 +75,7 @@ const user = {
           commit('SET_AVATAR', avatar)
           commit('SET_USER', data.user)
           commit('SET_TENANT', data.tenant)
+          commit('SET_ENUMS', data.enums)
           resolve(data)
         }).catch(error => {
           reject(error)
