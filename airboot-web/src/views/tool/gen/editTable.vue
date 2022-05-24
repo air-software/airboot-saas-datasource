@@ -46,7 +46,7 @@
                 <el-option label="BigDecimal" value="BigDecimal" />
                 <el-option label="Date" value="Date" />
                 <el-option label="Enum" value="Enum" />
-                <el-option label="boolean" value="boolean" />
+                <el-option label="Boolean" value="Boolean" />
               </el-select>
             </template>
           </el-table-column>

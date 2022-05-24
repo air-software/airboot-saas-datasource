@@ -165,7 +165,7 @@ public class GenConstants {
     /**
      * 布尔类型（不使用包装类）
      */
-    public static final String TYPE_BOOLEAN = "boolean";
+    public static final String TYPE_BOOLEAN = "Boolean";
     
     /**
      * 模糊查询

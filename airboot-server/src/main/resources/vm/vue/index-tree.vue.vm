@@ -30,7 +30,7 @@
           <el-option value="${enum}" />
 #end
 #end
-#if($column.javaType == "boolean")
+#if($column.javaType == "Boolean")
           <el-option :value="true" label="${column.booleanDescMap.get("true")}" />
           <el-option :value="false" label="${column.booleanDescMap.get("false")}" />
 #end
@@ -104,7 +104,7 @@
           <span>{{ parseTime(scope.row.${javaField}, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-#elseif($column.list && $column.javaType == "boolean")
+#elseif($column.list && $column.javaType == "Boolean")
       <el-table-column label="${comment}" align="center" prop="${javaField}" :formatter="${javaField}Format" />
 #elseif($column.list && "" != $javaField)
       <el-table-column label="${comment}" align="center" prop="${javaField}" />
@@ -167,7 +167,7 @@
 #end
           </el-select>
         </el-form-item>
-#elseif($htmlType == "select" && $column.javaType == "boolean")
+#elseif($htmlType == "select" && $column.javaType == "Boolean")
         <el-form-item label="${comment}">
           <el-select v-model="form.${field}" placeholder="请选择${comment}">
             <el-option :value="true" label="${column.booleanDescMap.get("true")}" />
@@ -182,7 +182,7 @@
 #end
           </el-radio-group>
         </el-form-item>
-#elseif($htmlType == "radio" && $column.javaType == "boolean")
+#elseif($htmlType == "radio" && $column.javaType == "Boolean")
         <el-form-item label="${comment}">
           <el-radio-group v-model="form.${field}">
             <el-radio :label="true">${column.booleanDescMap.get("true")}</el-radio>
@@ -289,7 +289,7 @@ export default {
       })
     },
 #foreach ($column in $columns)
-#if($column.javaType == "boolean" && $column.list)
+#if($column.javaType == "Boolean" && $column.list)
 #set($parentheseIndex=$column.columnComment.indexOf("（"))
 #if($parentheseIndex != -1)
 #set($comment=$column.columnComment.substring(0, $parentheseIndex))
@@ -365,7 +365,7 @@ export default {
 #if($column.enumList.size() != 0)
         $column.javaField: '${column.enumList[0]}'#if($velocityCount != $columns.size()),#end
 
-#elseif($column.javaType == "boolean")
+#elseif($column.javaType == "Boolean")
         $column.javaField: false#if($velocityCount != $columns.size()),#end
 
 #else

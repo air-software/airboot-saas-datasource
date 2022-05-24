@@ -25,7 +25,7 @@ public class Search${ClassName}VO extends BaseSearchVO {
 #end
 #if($column.javaType == "Enum")
     private $column.enumSimpleName $column.javaField;
-#elseif($column.javaType == "boolean")
+#elseif($column.javaType == "Boolean")
     private Boolean $column.javaField;
 #else
     private $column.javaType $column.javaField;
