@@ -20,8 +20,8 @@
         <if test="status != null">
             AND r.status = #{status}
         </if>
-        <if test="roleKey != null and roleKey != ''">
-            AND r.role_key like concat('%', #{roleKey}, '%')
+        <if test="roleType != null">
+            AND r.role_type = #{roleType}
         </if>
         <if test="beginTime != null and beginTime != ''"><!-- 开始时间检索 -->
             and date_format(r.create_time,'%y%m%d') &gt;= date_format(#{beginTime},'%y%m%d')
@@ -72,11 +72,6 @@
             resultType="com.airboot.project.system.model.entity.SysRole">
         <include refid="selectRole"/>
         where r.role_name=#{roleName} and !r.deleted
-    </select>
-
-    <select id="checkRoleKeyUnique" parameterType="String" resultType="com.airboot.project.system.model.entity.SysRole">
-        <include refid="selectRole"/>
-        where r.role_key=#{roleKey} and !r.deleted
     </select>
 
     <delete id="deleteRoleByIds" parameterType="Long">

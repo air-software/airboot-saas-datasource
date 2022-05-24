@@ -11,15 +11,20 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="权限字符" prop="roleKey">
-        <el-input
-          v-model="queryParams.roleKey"
-          placeholder="请输入权限字符"
+      <el-form-item label="角色类型" prop="status">
+        <el-select
+          v-model="queryParams.roleType"
+          placeholder="角色类型"
           clearable
           size="small"
           style="width: 240px"
-          @keyup.enter.native="handleQuery"
-        />
+        >
+          <el-option
+            v-for="item in roleTypeOptions"
+            :key="item"
+            :value="item"
+          />
+        </el-select>
       </el-form-item>
       <el-form-item label="状态" prop="status">
         <el-select
@@ -83,10 +88,9 @@
     </el-row>
 
     <el-table v-loading="loading" :data="tableData" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="角色编号" prop="id" width="120" />
-      <el-table-column label="角色名称" prop="roleName" width="150" show-overflow-tooltip />
-      <el-table-column label="权限字符" prop="roleKey" width="150" show-overflow-tooltip />
+      <el-table-column type="selection" width="55" align="center" :selectable="selectable" />
+      <el-table-column label="角色名称" prop="roleName" show-overflow-tooltip />
+      <el-table-column label="角色类型" align="center" prop="roleType" width="200" />
       <el-table-column label="显示顺序" prop="roleSort" width="100" />
       <el-table-column label="状态" align="center" width="100">
         <template slot-scope="scope">
@@ -95,17 +99,19 @@
             active-value="正常"
             inactive-value="停用"
             @change="handleStatusChange(scope.row)"
+            :disabled="!selectable(scope.row)"
           ></el-switch>
         </template>
       </el-table-column>
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180">
+      <el-table-column label="创建时间" align="center" prop="createTime" width="200">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+      <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="230">
         <template slot-scope="scope">
           <el-button
+            v-if="$isTenantAdmin || scope.row.roleType !== '管理员'"
             size="mini"
             type="text"
             icon="el-icon-edit"
@@ -113,6 +119,7 @@
             v-hasPermi="['system:role:edit']"
           >修改</el-button>
           <el-button
+            v-if="$isTenantAdmin || scope.row.roleType !== '管理员'"
             size="mini"
             type="text"
             icon="el-icon-circle-check"
@@ -120,7 +127,7 @@
             v-hasPermi="['system:role:edit']"
           >数据权限</el-button>
           <el-button
-            v-if="$isTenantAdmin || scope.row.roleKey !== 'admin'"
+            v-if="$isTenantAdmin || scope.row.roleType !== '管理员'"
             size="mini"
             type="text"
             icon="el-icon-delete"
@@ -143,21 +150,27 @@
     <el-dialog :title="title" :visible.sync="open" :close-on-click-modal="false" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="角色名称" prop="roleName">
-          <el-input v-model="form.roleName" placeholder="请输入角色名称" />
+          <el-input v-model="form.roleName" placeholder="请输入角色名称" :disabled="!$isTenantAdmin && form.roleType === '管理员'" />
         </el-form-item>
-        <el-form-item label="权限字符" prop="roleKey">
-          <el-input v-model="form.roleKey" placeholder="请输入权限字符" :disabled="roleKeyDisabled" @click.native="roleKeyDisabledTips" />
+        <el-form-item v-if="$isTenantAdmin || form.roleType !== '管理员'" label="角色类型" prop="roleType">
+          <el-select v-model="form.roleType" placeholder="请选择角色类型">
+            <el-option
+              v-for="item in roleTypeOptions"
+              :key="item"
+              :value="item"
+            />
+          </el-select>
         </el-form-item>
         <el-form-item label="角色顺序" prop="roleSort">
           <el-input-number v-model="form.roleSort" controls-position="right" :min="0" />
         </el-form-item>
-        <el-form-item label="状态">
+        <el-form-item v-if="$isTenantAdmin || form.roleType !== '管理员'" label="状态">
           <el-radio-group v-model="form.status">
             <el-radio label="正常" />
             <el-radio label="停用" />
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="菜单权限">
+        <el-form-item v-if="$isTenantAdmin || form.roleType !== '管理员'" label="菜单权限">
           <el-tree
             :data="menuOptions"
             show-checkbox
@@ -183,11 +196,8 @@
         <el-form-item label="角色名称">
           <el-input v-model="form.roleName" :disabled="true" />
         </el-form-item>
-        <el-form-item label="权限字符">
-          <el-input v-model="form.roleKey" :disabled="true" />
-        </el-form-item>
         <el-form-item label="权限范围">
-          <el-select v-model="form.dataScope">
+          <el-select v-model="form.dataScope" :disabled="!$isTenantAdmin && form.roleType === '管理员'">
             <el-option
               v-for="item in dataScopeOptions"
               :key="item"
@@ -240,6 +250,10 @@ export default {
       openDataScope: false,
       // 日期范围
       dateRange: [],
+      // 角色类型选项
+      roleTypeOptions: [
+        '自定义'
+      ],
       // 数据范围选项
       dataScopeOptions: [
         '全部数据权限',
@@ -257,7 +271,7 @@ export default {
         current: 1,
         size: 10,
         roleName: undefined,
-        roleKey: undefined,
+        roleType: undefined,
         status: undefined
       },
       // 表单参数
@@ -271,8 +285,8 @@ export default {
         roleName: [
           { required: true, message: '角色名称不能为空', trigger: 'blur' }
         ],
-        roleKey: [
-          { required: true, message: '权限字符不能为空', trigger: 'blur' }
+        roleType: [
+          { required: true, message: '角色类型不能为空', trigger: 'blur' }
         ],
         roleSort: [
           { required: true, message: '角色顺序不能为空', trigger: 'blur' }
@@ -281,12 +295,8 @@ export default {
       submitLoading: false
     }
   },
-  computed: {
-    roleKeyDisabled() {
-      return !this.$isTenantAdmin && this.form.roleKey === 'admin'
-    }
-  },
   created() {
+    if (this.$isTenantAdmin) this.roleTypeOptions.unshift('管理员')
     this.getPage()
   },
   methods: {
@@ -300,6 +310,13 @@ export default {
           this.loading = false
         }
       )
+    },
+    selectable(row) {
+      return this.$isTenantAdmin || row.roleType !== '管理员'
+    },
+    // 参数系统内置字典翻译
+    builtInFormat(row, column) {
+      return row.roleType === '自定义' ? '否' : '是'
     },
     /** 查询菜单树结构 */
     getMenuTreeselect() {
@@ -353,16 +370,16 @@ export default {
     handleStatusChange(row) {
       let text = row.status === '正常' ? '启用' : '停用'
       this.$confirm('确认要“' + text + '”【' + row.roleName + '】角色吗?', '警告', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(function() {
-          return changeRoleStatus(row.id, row.status)
-        }).then(() => {
-          this.msgSuccess(text + '成功')
-        }).catch(function() {
-          row.status = row.status === '正常' ? '停用' : '正常'
-        })
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(function() {
+        return changeRoleStatus(row.id, row.status)
+      }).then(() => {
+        this.msgSuccess(text + '成功')
+      }).catch(function() {
+        row.status = row.status === '正常' ? '停用' : '正常'
+      })
     },
     // 取消按钮
     cancel() {
@@ -382,9 +399,9 @@ export default {
       this.form = {
         id: undefined,
         roleName: undefined,
-        roleKey: undefined,
         roleSort: 0,
         status: '正常',
+        roleType: undefined,
         menuIds: [],
         deptIds: [],
         remark: undefined
@@ -478,34 +495,29 @@ export default {
     /** 删除按钮操作 */
     handleDelete(row) {
       const ids = row.id || this.ids
-      this.$confirm('是否确认删除角色编号为【' + ids + '】的数据项?', '警告', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(function() {
-          return delRole(ids)
-        }).then(() => {
-          this.getPage()
-          this.msgSuccess('删除成功')
-        }).catch(function() {})
+      this.$confirm('是否确认删除角色？', '警告', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(function() {
+        return delRole(ids)
+      }).then(() => {
+        this.getPage()
+        this.msgSuccess('删除成功')
+      }).catch(function() {})
     },
     /** 导出按钮操作 */
     handleExport() {
       const queryParams = this.addDateRange(this.queryParams, this.dateRange)
       this.$confirm('是否确认导出所有角色数据项?', '警告', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(function() {
-          return exportRole(queryParams)
-        }).then(data => {
-          this.download(data)
-        }).catch(function() {})
-    },
-    roleKeyDisabledTips() {
-      if (this.roleKeyDisabled) {
-        this.msgInfo('不允许修改管理员角色的权限字符')
-      }
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(function() {
+        return exportRole(queryParams)
+      }).then(data => {
+        this.download(data)
+      }).catch(function() {})
     }
   }
 }

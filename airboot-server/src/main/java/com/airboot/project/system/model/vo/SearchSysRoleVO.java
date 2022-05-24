@@ -1,6 +1,7 @@
 package com.airboot.project.system.model.vo;
 
 import com.airboot.common.model.vo.BaseSearchVO;
+import com.airboot.project.system.model.enums.RoleTypeEnum;
 import lombok.Data;
 
 /**
@@ -19,8 +20,8 @@ public class SearchSysRoleVO extends BaseSearchVO {
     private String roleName;
     
     /**
-     * 角色权限
+     * 角色类型
      */
-    private String roleKey;
+    private RoleTypeEnum roleType;
 
 }

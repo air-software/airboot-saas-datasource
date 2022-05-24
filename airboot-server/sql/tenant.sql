@@ -118,7 +118,7 @@ drop table if exists sys_role;
 create table sys_role (
   id                bigint(20)      not null auto_increment    comment '角色ID',
   role_name         varchar(30)     not null                   comment '角色名称',
-  role_key          varchar(100)    not null                   comment '角色权限字符串',
+  role_type         smallint(6)     default 0                  comment '角色类型',
   role_sort         int(4)          not null                   comment '显示顺序',
   data_scope        tinyint(4)      default 1                  comment '数据范围（1=全部数据权限,2=自定义数据权限,3=本部门数据权限,4=本部门及以下数据权限,5=仅本人数据权限）',
   status            tinyint(4)      not null default 1         comment '角色状态（0=停用,1=正常）',
@@ -137,8 +137,8 @@ create table sys_role (
 -- ----------------------------
 -- 初始化-角色信息表数据
 -- ----------------------------
-insert into sys_role values('1', '管理员',   'admin',  1, 1, 1, 1, '管理员_admin', '2021-03-15 11:56:23', 1, '管理员_admin', '2021-03-15 11:56:23', '', 0, 0);
-insert into sys_role values('2', '普通角色', 'common', 2, 2, 1, 1, '管理员_admin', '2021-03-15 11:56:23', 1, '管理员_admin', '2021-03-15 11:56:23', '', 0, 0);
+insert into sys_role values('1', '管理员',   -500,  1, 1, 1, 1, '管理员_admin', '2021-03-15 11:56:23', 1, '管理员_admin', '2021-03-15 11:56:23', '', 0, 0);
+insert into sys_role values('2', '普通角色', 0, 2, 2, 1, 1, '管理员_admin', '2021-03-15 11:56:23', 1, '管理员_admin', '2021-03-15 11:56:23', '', 0, 0);
 
 
 -- ----------------------------

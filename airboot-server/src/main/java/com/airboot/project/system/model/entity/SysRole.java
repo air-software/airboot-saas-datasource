@@ -1,11 +1,10 @@
 package com.airboot.project.system.model.entity;
 
 import com.airboot.common.core.aspectj.lang.annotation.Excel;
-import com.airboot.common.core.constant.Constants;
-import com.airboot.common.core.utils.StringUtils;
 import com.airboot.common.model.entity.BaseEntity;
 import com.airboot.common.model.enums.StatusEnum;
 import com.airboot.project.system.model.enums.DataScopeEnum;
+import com.airboot.project.system.model.enums.RoleTypeEnum;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
@@ -40,12 +39,11 @@ public class SysRole extends BaseEntity {
     private String roleName;
     
     /**
-     * 角色权限
+     * 角色类型
      */
-    @Excel(name = "角色权限")
-    @NotBlank(message = "权限字符不能为空")
-    @Size(min = 0, max = 100, message = "权限字符长度不能超过100个字符")
-    private String roleKey;
+    @Excel(name = "角色类型")
+    @NotNull(message = "角色类型不能为空")
+    private RoleTypeEnum roleType;
     
     /**
      * 角色排序
@@ -82,11 +80,19 @@ public class SysRole extends BaseEntity {
      * 是否为管理员角色
      */
     public boolean isAdmin() {
-        return isAdmin(this.getRoleKey());
+        return isAdmin(this.getRoleType());
     }
     
-    public static boolean isAdmin(String roleKey) {
-        return StringUtils.isNotBlank(roleKey) && Constants.ADMIN_ROLE_KEY.equals(roleKey);
+    public static boolean isAdmin(RoleTypeEnum roleType) {
+        return RoleTypeEnum.管理员.equals(roleType);
+    }
+    
+    public boolean isBuiltIn() {
+        return isBuiltIn(this.getRoleType());
+    }
+    
+    public static boolean isBuiltIn(RoleTypeEnum roleType) {
+        return !RoleTypeEnum.自定义.equals(roleType);
     }
     
 }

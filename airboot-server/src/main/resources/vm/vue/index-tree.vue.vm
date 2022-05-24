@@ -72,7 +72,7 @@
         >搜索</el-button>
         <el-button
           class="filter-item"
-          type="primary"
+          type="success"
           icon="el-icon-plus"
           size="mini"
           @click="handleAdd()"

@@ -15,6 +15,7 @@ import com.airboot.common.security.service.SysPermissionService;
 import com.airboot.common.security.service.TokenService;
 import com.airboot.project.system.model.entity.SysMenu;
 import com.airboot.project.system.model.entity.SysUser;
+import com.airboot.project.system.model.enums.RoleTypeEnum;
 import com.airboot.project.system.service.ISysMenuService;
 import com.airboot.project.system.service.ISysTenantService;
 import com.airsoftware.saas.datasource.context.SaaSDataSource;
@@ -101,7 +102,7 @@ public class SysLoginController {
         LoginUser loginUser = LoginUserContextHolder.getLoginUser();
         SysUser user = loginUser.getUser();
         // 角色集合
-        Set<String> roles = permissionService.getRolePermission(user);
+        Set<RoleTypeEnum> roles = permissionService.getRolePermission(user);
         // 权限集合
         Set<String> permissions = permissionService.getMenuPermission(user);
         Map<String, Object> dataMap = new HashMap<>();

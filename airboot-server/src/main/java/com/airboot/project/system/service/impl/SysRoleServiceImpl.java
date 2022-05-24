@@ -1,7 +1,6 @@
 package com.airboot.project.system.service.impl;
 
 import com.airboot.common.core.aspectj.lang.annotation.DataScope;
-import com.airboot.common.core.constant.Constants;
 import com.airboot.common.core.exception.CustomException;
 import com.airboot.common.core.utils.StringUtils;
 import com.airboot.common.core.utils.spring.SpringUtils;
@@ -14,6 +13,7 @@ import com.airboot.project.system.model.entity.SysRole;
 import com.airboot.project.system.model.entity.SysUser;
 import com.airboot.project.system.model.entity.relation.SysRoleDept;
 import com.airboot.project.system.model.entity.relation.SysRoleMenu;
+import com.airboot.project.system.model.enums.RoleTypeEnum;
 import com.airboot.project.system.model.vo.SearchSysRoleVO;
 import com.airboot.project.system.service.ISysRoleService;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -21,7 +21,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * 角色 业务层处理
@@ -74,15 +77,15 @@ public class SysRoleServiceImpl implements ISysRoleService {
      * @return 权限列表
      */
     @Override
-    public Set<String> getPermsByUserId(Long userId) {
-        List<SysRole> perms = roleMapper.findListByUserId(userId);
-        Set<String> permsSet = new HashSet<>();
-        for (SysRole perm : perms) {
-            if (StringUtils.isNotNull(perm)) {
-                permsSet.addAll(Arrays.asList(perm.getRoleKey().trim().split(",")));
+    public Set<RoleTypeEnum> getRoleTypeSetByUserId(Long userId) {
+        List<SysRole> roleList = roleMapper.findListByUserId(userId);
+        Set<RoleTypeEnum> roleTypeSet = new HashSet<>();
+        for (SysRole role : roleList) {
+            if (StringUtils.isNotNull(role)) {
+                roleTypeSet.add(role.getRoleType());
             }
         }
-        return permsSet;
+        return roleTypeSet;
     }
     
     /**
@@ -134,22 +137,6 @@ public class SysRoleServiceImpl implements ISysRoleService {
     }
     
     /**
-     * 校验角色权限是否唯一
-     *
-     * @param role 角色信息
-     * @return 结果
-     */
-    @Override
-    public boolean checkRoleKeyUnique(SysRole role) {
-        if (StringUtils.isBlank(role.getRoleKey())) {
-            return false;
-        }
-        Long roleId = StringUtils.isNull(role.getId()) ? -1L : role.getId();
-        SysRole info = roleMapper.checkRoleKeyUnique(role.getRoleKey());
-        return info == null || info.getId().equals(roleId);
-    }
-    
-    /**
      * 校验角色是否允许操作
      *
      * @param role 角色信息
@@ -168,8 +155,8 @@ public class SysRoleServiceImpl implements ISysRoleService {
         if (!user.isAdmin() && editRole.isAdmin()) {
             throw new CustomException("不允许操作管理员角色，如需修改请联系贵司管理员");
         }
-        // 如果要操作的是管理员，但要修改的是它的roleKey，则也不允许。只有超级租户管理员可以修改管理员的roleKey。
-        if (!user.isTenantAdmin() && editRole.isAdmin() && !Constants.ADMIN_ROLE_KEY.equals(role.getRoleKey())) {
+        // 如果要操作的是管理员，但要修改的是它的roleType，则也不允许。只有超级租户管理员可以修改管理员的roleType。
+        if (!user.isTenantAdmin() && editRole.isAdmin() && !RoleTypeEnum.管理员.equals(role.getRoleType())) {
             throw new CustomException("不允许修改管理员角色的权限字符");
         }
     }

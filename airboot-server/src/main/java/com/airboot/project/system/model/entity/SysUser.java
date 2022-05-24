@@ -202,7 +202,7 @@ public class SysUser extends BaseEntity {
     
     /**
      * 是否为管理员
-     * 如果是超级租户管理员，或所属角色列表中某一个的roleKey为admin，则认为是管理员
+     * 如果是超级租户管理员，或所属角色列表中某一个的roleType为管理员，则认为是管理员
      */
     public boolean isAdmin() {
         return this.isTenantAdmin() || isAdmin(this);

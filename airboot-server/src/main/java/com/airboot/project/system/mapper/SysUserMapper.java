@@ -2,6 +2,7 @@ package com.airboot.project.system.mapper;
 
 import com.airboot.common.component.MyBaseMapper;
 import com.airboot.project.system.model.entity.SysUser;
+import com.airboot.project.system.model.enums.RoleTypeEnum;
 import com.airboot.project.system.model.vo.SearchSysUserVO;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.ibatis.annotations.Param;
@@ -96,10 +97,10 @@ public interface SysUserMapper extends MyBaseMapper<SysUser> {
     SysUser checkEmailUnique(String email);
     
     /**
-     * 根据roleKey获取用户列表
+     * 根据roleType获取用户列表
      *
-     * @param roleKey 角色Key
-     * @return
+     * @param roleType 角色类型
+     * @return 结果
      */
-    List<SysUser> findListByRoleKey(@Param("roleKey") String roleKey);
+    List<SysUser> findListByRoleType(@Param("roleType") RoleTypeEnum roleType);
 }

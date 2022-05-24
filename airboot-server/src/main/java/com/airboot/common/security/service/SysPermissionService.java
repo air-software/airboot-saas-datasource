@@ -1,6 +1,7 @@
 package com.airboot.common.security.service;
 
 import com.airboot.project.system.model.entity.SysUser;
+import com.airboot.project.system.model.enums.RoleTypeEnum;
 import com.airboot.project.system.service.ISysMenuService;
 import com.airboot.project.system.service.ISysRoleService;
 import org.springframework.stereotype.Service;
@@ -29,15 +30,15 @@ public class SysPermissionService {
      * @param user 用户信息
      * @return 角色权限信息
      */
-    public Set<String> getRolePermission(SysUser user) {
-        Set<String> roles = new HashSet<>();
+    public Set<RoleTypeEnum> getRolePermission(SysUser user) {
+        Set<RoleTypeEnum> roleTypeSet = new HashSet<>();
         // 超级租户管理员拥有所有权限
         if (user.isTenantAdmin()) {
-            roles.add("admin");
+            roleTypeSet.add(RoleTypeEnum.超级租户管理员);
         } else {
-            roles.addAll(roleService.getPermsByUserId(user.getId()));
+            roleTypeSet.addAll(roleService.getRoleTypeSetByUserId(user.getId()));
         }
-        return roles;
+        return roleTypeSet;
     }
     
     /**

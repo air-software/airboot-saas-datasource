@@ -70,14 +70,6 @@ public interface SysRoleMapper extends MyBaseMapper<SysRole> {
     SysRole checkRoleNameUnique(String roleName);
     
     /**
-     * 校验角色权限是否唯一
-     *
-     * @param roleKey 角色权限
-     * @return 角色信息
-     */
-    SysRole checkRoleKeyUnique(String roleKey);
-    
-    /**
      * 批量删除角色信息
      *
      * @param roleIds 需要删除的角色ID

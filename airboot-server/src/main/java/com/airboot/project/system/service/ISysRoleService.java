@@ -1,6 +1,7 @@
 package com.airboot.project.system.service;
 
 import com.airboot.project.system.model.entity.SysRole;
+import com.airboot.project.system.model.enums.RoleTypeEnum;
 import com.airboot.project.system.model.vo.SearchSysRoleVO;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 
@@ -36,7 +37,7 @@ public interface ISysRoleService {
      * @param userId 用户ID
      * @return 权限列表
      */
-    Set<String> getPermsByUserId(Long userId);
+    Set<RoleTypeEnum> getRoleTypeSetByUserId(Long userId);
     
     /**
      * 查询所有角色
@@ -68,14 +69,6 @@ public interface ISysRoleService {
      * @return 结果
      */
     boolean checkRoleNameUnique(SysRole role);
-    
-    /**
-     * 校验角色权限是否唯一
-     *
-     * @param role 角色信息
-     * @return 结果
-     */
-    boolean checkRoleKeyUnique(SysRole role);
     
     /**
      * 校验角色是否允许操作

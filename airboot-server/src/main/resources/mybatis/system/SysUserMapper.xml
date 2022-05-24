@@ -47,7 +47,7 @@
     <resultMap id="RoleResult" type="com.airboot.project.system.model.entity.SysRole">
         <id property="id" column="roleId"/>
         <result property="roleName" column="role_name"/>
-        <result property="roleKey" column="role_key"/>
+        <result property="roleType" column="role_type"/>
         <result property="roleSort" column="role_sort"/>
         <result property="dataScope" column="data_scope"/>
         <result property="status" column="roleStatus"/>
@@ -141,13 +141,13 @@
         </foreach>
     </delete>
     
-    <select id="findListByRoleKey" resultMap="SysUserResult">
+    <select id="findListByRoleType" resultMap="SysUserResult">
         select u.*
         from sys_user u
-		left join sys_user_role ur on u.id = ur.user_id
+		left join sys_user_role ur on ur.user_id = u.id
 		left join sys_role r on r.id = ur.role_id
 		where !u.deleted and u.status = 1
-		and r.role_key = #{roleKey}
+		and r.role_type = #{roleType}
     </select>
 
 </mapper> 

@@ -72,8 +72,6 @@ public class SysRoleController extends BaseController {
     public AjaxResult add(@Validated @RequestBody SysRole role) {
         if (!roleService.checkRoleNameUnique(role)) {
             return fail("新增角色'" + role.getRoleName() + "'失败，角色名称已存在");
-        } else if (!roleService.checkRoleKeyUnique(role)) {
-            return fail("新增角色'" + role.getRoleName() + "'失败，角色权限已存在");
         }
         return toAjax(roleService.save(role));
         
@@ -89,8 +87,6 @@ public class SysRoleController extends BaseController {
         roleService.checkRoleAllowed(role);
         if (!roleService.checkRoleNameUnique(role)) {
             return fail("修改角色'" + role.getRoleName() + "'失败，角色名称已存在");
-        } else if (!roleService.checkRoleKeyUnique(role)) {
-            return fail("修改角色'" + role.getRoleName() + "'失败，角色权限已存在");
         }
         
         int result = roleService.update(role);
