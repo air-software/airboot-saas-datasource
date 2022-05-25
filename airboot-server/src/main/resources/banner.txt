@@ -1,5 +1,5 @@
 Spring Boot Version: ${spring-boot.version}
-Airboot-SaaS-DataSource Version: 1.1.0
+Airboot-SaaS-DataSource Version: 1.1.1
 ////////////////////////////////////////////////////////////////////
 //                          _ooOoo_                               //
 //                         o8888888o                              //

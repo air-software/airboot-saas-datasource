@@ -3,7 +3,7 @@ airboot:
   # 名称
   name: Airboot-SaaS-DataSource
   # 版本
-  version: 1.1.0
+  version: 1.1.1
 
 # Spring配置
 spring:
